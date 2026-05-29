@@ -25,14 +25,14 @@ export default function QuizList({ assessments }) {
 
   return (
     <>
-      <Card>
+      <Card className="border-white/10 bg-slate-950/55 shadow-[0_18px_60px_-48px_rgba(15,23,42,0.95)]">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="gradient-title text-3xl md:text-4xl">
+              <CardTitle className="text-3xl font-semibold tracking-tight text-slate-50 md:text-4xl">
                 Recent Quizzes
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-slate-400">
                 Review your past quiz performance
               </CardDescription>
             </div>
@@ -46,14 +46,14 @@ export default function QuizList({ assessments }) {
             {assessments?.map((assessment, i) => (
               <Card
                 key={assessment.id}
-                className="cursor-pointer hover:bg-muted/50 transition-colors"
+                className="cursor-pointer border-white/10 bg-white/[0.035] transition hover:border-cyan-300/30 hover:bg-white/[0.065]"
                 onClick={() => setSelectedQuiz(assessment)}
               >
                 <CardHeader>
-                  <CardTitle className="gradient-title text-2xl">
-                    Quiz {i + 1}
+                  <CardTitle className="text-2xl font-semibold text-slate-50">
+                    {assessment.category || `Quiz ${i + 1}`}
                   </CardTitle>
-                  <CardDescription className="flex justify-between w-full">
+                  <CardDescription className="flex w-full justify-between text-slate-400">
                     <div>Score: {assessment.quizScore.toFixed(1)}%</div>
                     <div>
                       {format(
@@ -65,8 +65,14 @@ export default function QuizList({ assessments }) {
                 </CardHeader>
                 {assessment.improvementTip && (
                   <CardContent>
-                    <p className="text-sm text-muted-foreground">
-                      {assessment.improvementTip}
+                    <p className="line-clamp-2 text-sm leading-6 text-slate-400">
+                      {assessment.improvementTip
+                        .replace(/#+\s*/g, "")
+                        .replace(/[*_`]/g, "")
+                        .split("\n")
+                        .filter(Boolean)
+                        .slice(0, 2)
+                        .join(" ")}
                     </p>
                   </CardContent>
                 )}

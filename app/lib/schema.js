@@ -31,7 +31,15 @@ export const contactSchema = z.object({
   email: z.string().email("Invalid email address"),
   mobile: z.string().optional(),
   linkedin: z.string().optional(),
+  github: z.string().optional(),
+  portfolio: z.string().optional(),
   twitter: z.string().optional(),
+});
+
+export const academicSchema = z.object({
+  tenth: z.string().optional(),
+  twelfth: z.string().optional(),
+  ug: z.string().optional(),
 });
 
 export const entrySchema = z
@@ -58,11 +66,13 @@ export const entrySchema = z
 
 export const resumeSchema = z.object({
   contactInfo: contactSchema,
-  summary: z.string().min(1, "Professional summary is required"),
+  academicPerformance: academicSchema.optional(),
   skills: z.string().min(1, "Skills are required"),
+  keyCourses: z.string().optional(),
   experience: z.array(entrySchema),
   education: z.array(entrySchema),
   projects: z.array(entrySchema),
+  certifications: z.string().optional(),
 });
 
 export const coverLetterSchema = z.object({

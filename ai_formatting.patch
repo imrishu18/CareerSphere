@@ -1,0 +1,467 @@
+commit 366818902167ead1dcd661878aff50cffa9223cc
+Merge: fb187be cfe4e91 43eb487
+Author: imrishu18 <rishu_2312res526@iitp.ac.in>
+Date:   Tue May 26 14:32:36 2026 +0530
+
+    On main: agent_steps_1_7
+
+diff --cc actions/cover-letter.js
+index 60fef79,60fef79,0000000..98a3da7
+mode 100644,100644,000000..100644
+--- a/actions/cover-letter.js
++++ b/actions/cover-letter.js
+@@@@ -1,136 -1,136 -1,0 +1,147 @@@@
+  +"use server"; 
+  +
+  +import { db } from "@/lib/prisma";
+  +import { auth } from "@clerk/nextjs/server";
+  +import { GoogleGenerativeAI } from "@google/generative-ai";
+  +
+  +const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+  +const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  +
+  +/**
+  + * Generates a professional cover letter for a given job.
+  + * Uses AI to generate content and stores it in the database.
+  + *
+  + * @param {Object} data - Cover letter request data
+  + * @param {string} data.jobTitle - Job title applied for
+  + * @param {string} data.companyName - Target company name
+  + * @param {string} data.jobDescription - Description of the job role
+  + * @returns {Promise<Object>} Newly created cover letter entry
+  + * @throws {Error} If user is unauthorized, missing fields, or AI request fails
+  + */
+  +export async function generateCoverLetter(data) {
+  +  const { userId } = await auth();
+  +  if (!userId) throw new Error("Unauthorized");
+  +
+  +  if (!data?.jobTitle || !data?.companyName || !data?.jobDescription) {
+  +    throw new Error("Missing required fields");
+  +  }
+  +
+  +  const user = await db.user.findUnique({
+  +    where: { clerkUserId: userId },
+  +  });
+  +
+  +  if (!user) throw new Error("User not found");
+  +
+  +  const prompt = `
+  +    Write a professional cover letter for a ${data.jobTitle} position at ${data.companyName}.
+--     ...
++++    
++++    Job Description:
++++    ${data.jobDescription}
++++    
++++    FORMATTING RULES:
++++    - Use a modern, professional, and confident tone.
++++    - Format the response using clean Markdown.
++++    - Start directly with the greeting (e.g. Dear Hiring Manager). Do NOT include placeholder headers like [Your Name] or [Date].
++++    - Use an introductory paragraph highlighting excitement for the role.
++++    - Use bullet points to highlight 2-3 key strengths or achievements that match the job description.
++++    - Avoid giant messy paragraphs. Break up the text for excellent readability.
++++    - Include a brief closing paragraph and sign off.
+  +  `;
+  +
+  +  try {
+  +    const result = await model.generateContent(prompt);
+  +    const content = result.response.text().trim();
+  +
+  +    return await db.coverLetter.create({
+  +      data: {
+  +        content,
+  +        jobDescription: data.jobDescription,
+  +        companyName: data.companyName,
+  +        jobTitle: data.jobTitle,
+  +        status: "completed",
+  +        userId: user.id,
+  +      },
+  +    });
+  +  } catch (error) {
+  +    console.error("Error generating cover letter:", error.message);
+  +    throw new Error("Failed to generate cover letter");
+  +  }
+  +}
+  +
+  +/**
+  + * Fetch all cover letters for the authenticated user.
+  + *
+  + * @returns {Promise<Array>} List of cover letters ordered by newest first
+  + * @throws {Error} If user is unauthorized or query fails
+  + */
+  +export async function getCoverLetters() {
+  +  const { userId } = await auth();
+  +  if (!userId) throw new Error("Unauthorized");
+  +
+  +  try {
+  +    const user = await db.user.findUnique({
+  +      where: { clerkUserId: userId },
+  +    });
+  +    if (!user) throw new Error("User not found");
+  +
+  +    return await db.coverLetter.findMany({
+  +      where: { userId: user.id },
+  +      orderBy: { createdAt: "desc" },
+  +    });
+  +  } catch (error) {
+  +    console.error("Error fetching cover letters:", error.message);
+  +    throw new Error("Failed to fetch cover letters");
+  +  }
+  +}
+  +
+  +/**
+  + * Fetch a single cover letter by ID for the authenticated user.
+  + *
+  + * @param {string} id - Cover letter ID
+  + * @returns {Promise<Object|null>} Cover letter object or null if not found
+  + * @throws {Error} If user is unauthorized or query fails
+  + */
+  +export async function getCoverLetter(id) {
+  +  const { userId } = await auth();
+  +  if (!userId) throw new Error("Unauthorized");
+  +
+  +  try {
+  +    const user = await db.user.findUnique({
+  +      where: { clerkUserId: userId },
+  +    });
+  +    if (!user) throw new Error("User not found");
+  +
+  +    return await db.coverLetter.findUnique({
+  +      where: { id, userId: user.id },
+  +    });
+  +  } catch (error) {
+  +    console.error("Error fetching cover letter:", error.message);
+  +    throw new Error("Failed to fetch cover letter");
+  +  }
+  +}
+  +
+  +/**
+  + * Delete a cover letter by ID for the authenticated user.
+  + *
+  + * @param {string} id - Cover letter ID
+  + * @returns {Promise<Object>} Deleted cover letter entry
+  + * @throws {Error} If user is unauthorized or deletion fails
+  + */
+  +export async function deleteCoverLetter(id) {
+  +  const { userId } = await auth();
+  +  if (!userId) throw new Error("Unauthorized");
+  +
+  +  try {
+  +    const user = await db.user.findUnique({
+  +      where: { clerkUserId: userId },
+  +    });
+  +    if (!user) throw new Error("User not found");
+  +
+  +    return await db.coverLetter.delete({
+  +      where: { id, userId: user.id },
+  +    });
+  +  } catch (error) {
+  +    console.error("Error deleting cover letter:", error.message);
+  +    throw new Error("Failed to delete cover letter");
+  +  }
+  +}
+diff --cc actions/interview.js
+index 564c928,564c928,0000000..c1d0986
+mode 100644,100644,000000..100644
+--- a/actions/interview.js
++++ b/actions/interview.js
+@@@@ -1,164 -1,164 -1,0 +1,169 @@@@
+  +"use server";
+  +
+  +import { db } from "@/lib/prisma";
+  +import { auth } from "@clerk/nextjs/server";
+  +import { GoogleGenerativeAI } from "@google/generative-ai";
+  +
+  +// Initialize Gemini model
+  +const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+  +const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  +
+  +/**
+  + * Generate a multiple-choice quiz for the logged-in user.
+  + * - Uses user's industry (and skills, if available) to generate 10 technical questions.
+  + * - Validates AI response to ensure JSON format is correct.
+  + */
+  +export async function generateQuiz() {
+  +  const { userId } = await auth();
+  +  if (!userId) throw new Error("Unauthorized user");
+  +
+  +  // Fetch user details to personalize quiz
+  +  const user = await db.user.findUnique({
+  +    where: { clerkUserId: userId },
+  +    select: { industry: true, skills: true },
+  +  });
+  +
+  +  if (!user) throw new Error("User not found");
+  +  if (!user.industry) throw new Error("User industry not set");
+  +
+  +  const skillsText = user.skills?.length
+  +    ? ` with expertise in ${user.skills.join(", ")}`
+  +    : "";
+  +
+  +  // Prompt to Gemini for quiz generation
+  +  const prompt = `
+  +    Generate 10 technical interview questions for a ${user.industry} professional${skillsText}.
+  +    Each question should be multiple choice with 4 options.
+  +    Return ONLY this JSON (no notes, no markdown):
+  +    {
+  +      "questions": [
+  +        {
+  +          "question": "string",
+  +          "options": ["string", "string", "string", "string"],
+  +          "correctAnswer": "string",
+  +          "explanation": "string"
+  +        }
+  +      ]
+  +    }
+  +  `;
+  +
+  +  try {
+  +    const result = await model.generateContent(prompt);
+  +    const text = result.response.text();
+  +    const cleaned = text.replace(/```(?:json)?\n?/g, "").trim();
+  +    const quiz = JSON.parse(cleaned);
+  +
+  +    if (!quiz.questions || !Array.isArray(quiz.questions)) {
+  +      throw new Error("Invalid quiz format from AI");
+  +    }
+  +
+  +    return quiz.questions;
+  +  } catch (err) {
+  +    console.error("Error generating quiz:", err);
+  +    throw new Error("Failed to generate quiz questions");
+  +  }
+  +}
+  +
+  +/**
+  + * Save quiz results after user attempts.
+  + * - Stores each question with user answers and correctness.
+  + * - Generates a short improvement tip from Gemini if wrong answers exist.
+  + */
+  +export async function saveQuizResult(questions, answers, score) {
+  +  const { userId } = await auth();
+  +  if (!userId) throw new Error("Unauthorized user");
+  +
+  +  const user = await db.user.findUnique({
+  +    where: { clerkUserId: userId },
+  +  });
+  +
+  +  if (!user) throw new Error("User not found");
+  +
+  +  // Build structured results for each question
+  +  const questionResults = questions.map((q, index) => ({
+  +    question: q.question,
+  +    answer: q.correctAnswer,
+  +    userAnswer: answers[index],
+  +    isCorrect: q.correctAnswer === answers[index],
+  +    explanation: q.explanation,
+  +  }));
+  +
+  +  // Extract wrong answers for improvement feedback
+  +  const wrongAnswers = questionResults.filter((q) => !q.isCorrect);
+  +
+  +  let improvementTip = null;
+  +  if (wrongAnswers.length > 0) {
+  +    const wrongQuestionsText = wrongAnswers
+  +      .map(
+  +        (q) =>
+  +          `Question: "${q.question}"\nCorrect Answer: "${q.answer}"\nUser Answer: "${q.userAnswer}"`
+  +      )
+  +      .join("\n\n");
+  +
+  +    const improvementPrompt = `
+  +      The user got the following ${user.industry} interview questions wrong:
+  +      ${wrongQuestionsText}
+  +
+--       Based on these, give 1 concise improvement tip (max 2 sentences).
+--       Be encouraging and focus on what to learn/practice.
++++      Based on these mistakes, provide a structured improvement guide.
++++      
++++      FORMATTING RULES:
++++      - Use a clear Markdown heading (e.g., ### Areas for Improvement).
++++      - Use bullet points for specific actionable tips or recommended topics to study.
++++      - Keep it encouraging and highly readable.
++++      - Avoid giant paragraphs.
+  +    `;
+  +
+  +    try {
+  +      const tipResult = await model.generateContent(improvementPrompt);
+  +      improvementTip = tipResult.response.text().trim();
+  +    } catch (err) {
+  +      console.error("Error generating improvement tip:", err);
+  +      improvementTip = "Focus on strengthening core fundamentals in your domain.";
+  +    }
+  +  }
+  +
+  +  // Save results in the database
+  +  try {
+  +    const assessment = await db.assessment.create({
+  +      data: {
+  +        userId: user.id,
+  +        quizScore: score,
+  +        questions: questionResults ?? [],
+  +        category: "Technical",
+  +        improvementTip,
+  +      },
+  +    });
+  +
+  +    return assessment;
+  +  } catch (err) {
+  +    console.error("Error saving quiz result:", err);
+  +    throw new Error("Failed to save quiz result");
+  +  }
+  +}
+  +
+  +/**
+  + * Fetch all previous assessments for the logged-in user.
+  + * - Returns results ordered by most recent first.
+  + */
+  +export async function getAssessments() {
+  +  const { userId } = await auth();
+  +  if (!userId) throw new Error("Unauthorized user");
+  +
+  +  const user = await db.user.findUnique({
+  +    where: { clerkUserId: userId },
+  +  });
+  +
+  +  if (!user) throw new Error("User not found");
+  +
+  +  try {
+  +    const assessments = await db.assessment.findMany({
+  +      where: { userId: user.id },
+  +      orderBy: { createdAt: "desc" }, 
+  +    });
+  +
+  +    return assessments;
+  +  } catch (err) {
+  +    console.error("Error fetching assessments:", err);
+  +    throw new Error("Failed to fetch assessments");
+  +  }
+  +}
+diff --cc actions/resume.js
+index becf489,becf489,0000000..5180ed3
+mode 100644,100644,000000..100644
+--- a/actions/resume.js
++++ b/actions/resume.js
+@@@@ -1,116 -1,116 -1,0 +1,113 @@@@
+  +"use server";
+  +
+  +import { db } from "@/lib/prisma";
+  +import { auth } from "@clerk/nextjs/server";
+  +import { GoogleGenerativeAI } from "@google/generative-ai";
+  +import { revalidatePath } from "next/cache";
+  +
+  +const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+  +const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  +
+  +/**
+  + * Save or update a user's resume in the database.
+  + * Uses Prisma upsert for reliability and revalidates cache for UI sync.
+  + *
+  + * @param {string} content - Resume content to be saved
+  + * @returns {Promise<Object>} The saved/updated resume record
+  + */
+  +export async function saveResume(content) {
+  +  const { userId } = await auth();
+  +  if (!userId) throw new Error("Unauthorized: User not logged in");
+  +
+  +  const user = await db.user.findUnique({
+  +    where: { clerkUserId: userId },
+  +  });
+  +  if (!user) throw new Error("User not found in database");
+  +
+  +  try {
+  +    const resume = await db.resume.upsert({
+  +      where: { userId: user.id },
+  +      update: { content },
+  +      create: { userId: user.id, content },
+  +    });
+  +
+  +    // Refresh cache so UI shows the latest resume
+  +    revalidatePath("/resume");
+  +    return resume;
+  +  } catch (error) {
+  +    console.error("Database error saving resume:", error);
+  +    throw new Error("Failed to save resume. Please try again.");
+  +  }
+  +}
+  +
+  +/**
+  + * Fetch the logged-in user's resume from the database.
+  + *
+  + * @returns {Promise<Object|null>} Resume object if found, otherwise null
+  + */
+  +export async function getResume() {
+  +  const { userId } = await auth();
+  +  if (!userId) throw new Error("Unauthorized: User not logged in");
+  +
+  +  const user = await db.user.findUnique({
+  +    where: { clerkUserId: userId },
+  +  });
+  +  if (!user) throw new Error("User not found in database");
+  +
+  +  return db.resume.findUnique({
+  +    where: { userId: user.id },
+  +  });
+  +}
+  +
+  +/**
+  + * Enhance a section of the resume using AI.
+  + * Ensures improvements are ATS-friendly, professional, and concise.
+  + *
+  + * @param {Object} params
+  + * @param {string} params.current - Current text to improve
+  + * @param {string} params.type - Section type (summary, experience, education, etc.)
+  + * @returns {Promise<string>}
+  + */
+  +export async function improveWithAI({ current, type }) {
+  +  if (!current || typeof current !== "string") {
+  +    throw new Error("Invalid input: Resume content must be a non-empty string");
+  +  }
+  +
+  +  const { userId } = await auth();
+  +  if (!userId) throw new Error("Unauthorized: User not logged in");
+  +
+  +  const user = await db.user.findUnique({
+  +    where: { clerkUserId: userId },
+  +    include: { industryInsight: true },
+  +  });
+  +  if (!user) throw new Error("User not found in database");
+  +
+  +  const prompt = `
+  +    You are a professional resume writer. Improve the following ${type} section 
+  +    for a ${user.industry} professional.
+  +
+  +    Current content: "${current}"
+  +
+--     Guidelines:
+--     - Use strong action verbs
+--     - Add measurable results (%, $, numbers) where applicable
+--     - Highlight relevant technical & industry skills
+--     - Keep concise (max 3–4 sentences)
+--     - Focus on achievements, not responsibilities
+--     - Include industry-specific keywords
+--     - For "Education", format as: [Degree], [Institution], [Year]
+-- 
+--     Return only the improved text. Do not include markdown, notes, or extra formatting.
++++    STRICT ATS & FORMATTING RULES:
++++    - Output strictly as highly readable, ATS-friendly bullet points (using standard bullets '• ').
++++    - Use strong, action-oriented wording and concise impact statements.
++++    - Highlight measurable results, relevant technical skills, and optimization keywords.
++++    - DO NOT generate fake metrics, duplicate company names, or repetitive robotic wording.
++++    - DO NOT write long generic paragraphs. Keep each bullet concise and impactful.
++++    - Output ONLY the improved text, without conversational introductions or markdown code blocks.
+  +  `;
+  +
+  +  try {
+  +    const result = await model.generateContent(prompt);
+  +    let text = result.response.text().trim();
+  +
+  +    text = text.replace(/```[\s\S]*?```/g, "").trim();
+  +
+  +    if (!text) throw new Error("AI returned an empty response");
+  +
+  +    return text;
+  +  } catch (error) {
+  +    console.error("AI resume improvement error:", error);
+  +    throw new Error("Failed to improve resume content. Please try again.");
+  +  }
+  +}

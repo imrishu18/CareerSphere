@@ -1,32 +1,31 @@
-import { Inter } from "next/font/google";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "sonner";
 import Header from "@/components/header";
 import { ThemeProvider } from "@/components/theme-provider";
 import { dark } from "@clerk/themes";
-
-const inter = Inter({ subsets: ["latin"] });
+import AuthStorageCleanup from "@/components/auth-storage-cleanup";
 
 export const metadata = {
-  title: "CareerCraft – AI-Powered Career Growth",
+  metadataBase: new URL("https://careersphere.ai"),
+  title: "CareerSphere - AI-Powered Career Readiness Platform",
   description:
-    "CareerCraft helps you accelerate your career with AI-powered insights, personalized interview preparation, and professional guidance.",
+    "CareerSphere helps students and professionals become career-ready with AI resume tools, interview preparation, industry insights, and career guidance.",
   icons: {
     icon: "/logo.png",
   },
   openGraph: {
-    title: "CareerCraft – AI-Powered Career Growth",
+    title: "CareerSphere - AI-Powered Career Readiness Platform",
     description:
-      "Unlock your full career potential with AI-powered tools designed for professionals.",
-    url: "https://careercraft.com",
-    siteName: "CareerCraft",
+      "Build ATS-ready resumes, match jobs, generate cover letters, and prepare for interviews with an AI-powered career readiness platform.",
+    url: "https://careersphere.ai",
+    siteName: "CareerSphere",
     images: [
       {
         url: "/logo.png",
         width: 1200,
         height: 630,
-        alt: "CareerCraft Logo",
+        alt: "CareerSphere Logo",
       },
     ],
     locale: "en_US",
@@ -44,7 +43,7 @@ export default function RootLayout({ children }) {
       <html lang="en" suppressHydrationWarning>
         <head />
         <body
-          className={`${inter.className} bg-gradient-to-b from-gray-950 via-gray-900 to-black text-foreground antialiased`}
+          className="bg-gradient-to-b from-gray-950 via-slate-950 to-black text-foreground antialiased"
         >
           <ThemeProvider
             attribute="class"
@@ -52,29 +51,26 @@ export default function RootLayout({ children }) {
             enableSystem
             disableTransitionOnChange
           >
-            {/* Header */}
             <Header />
-
-            {/* Page Content */}
+            <AuthStorageCleanup />
             <main className="min-h-screen">{children}</main>
-
-            {/* Toaster */}
             <Toaster richColors />
 
-            {/* Footer */}
-            <footer className="relative border-t border-primary/30 bg-background/80 backdrop-blur py-8">
-              <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
-                <p>
-                  Made with <span className="text-pink-500">💗</span> by{" "}
-                  <span className="font-semibold text-primary hover:underline">
-                    Rishu
-                  </span>
-                </p>
-                <p className="mt-2 text-xs text-muted-foreground/80">
-                  © {new Date().getFullYear()} CareerCraft. All rights reserved.
+            <footer className="relative border-t border-white/10 bg-background/80 py-8 backdrop-blur-xl">
+              <div className="container mx-auto flex flex-col items-center justify-between gap-3 px-4 text-center text-sm text-muted-foreground md:flex-row md:text-left">
+                <div>
+                  <p className="font-semibold tracking-[0.18em] text-foreground">
+                    CAREERSPHERE
+                  </p>
+                  <p className="mt-1 text-xs">
+                    AI-powered career readiness for resumes, interviews, and job preparation.
+                  </p>
+                </div>
+                <p className="text-xs text-muted-foreground/80">
+                  CareerSphere. All rights reserved.
                 </p>
               </div>
-              <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-purple-600 via-pink-500 to-teal-400"></div>
+              <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-cyan-400 via-emerald-400 to-violet-400" />
             </footer>
           </ThemeProvider>
         </body>

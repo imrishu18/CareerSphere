@@ -61,12 +61,12 @@ const OnboardingForm = ({ industries }) => {
         industry: formattedIndustry,
       });
     } catch (error) {
-      console.error("Onboarding error:", error);
+      toast.error(error.message || "Failed to complete profile");
     }
   };
 
   useEffect(() => {
-    if (updateResult?.success && !updateLoading) {
+    if (updateResult && !updateLoading) {
       toast.success("Profile completed successfully!");
       router.push("/dashboard");
       router.refresh();
@@ -77,10 +77,10 @@ const OnboardingForm = ({ industries }) => {
 
   return (
     <div className="flex items-center justify-center bg-background">
-      <Card className="w-full max-w-lg mt-10 mx-2">
+      <Card className="mt-10 w-full max-w-lg border-white/10 bg-white/[0.06] mx-2">
         <CardHeader>
-          <CardTitle className="gradient-title text-4xl">
-            Complete Your Profile
+          <CardTitle className="text-4xl font-black tracking-tight">
+            Complete Your CareerSphere Profile
           </CardTitle>
           <CardDescription>
             Select your industry to get personalized career insights and

@@ -1,94 +1,97 @@
 import React from "react";
-import { Button } from "./ui/button";
-import {
-  PenBox,
-  LayoutDashboard,
-  FileText,
-  GraduationCap,
-  ChevronDown,
-  StarsIcon,
-} from "lucide-react";
 import Link from "next/link";
+import {
+  Bot,
+  BookOpen,
+  BriefcaseBusiness,
+  ChevronDown,
+  FileSearch,
+  FileText,
+  LayoutDashboard,
+  MessageSquareText,
+  PenBox,
+  Sparkles,
+} from "lucide-react";
 import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
+import { Button } from "./ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import Image from "next/image";
-import { checkUser } from "@/lib/checkUser";
+
+const tools = [
+  { href: "/resume", label: "AI Resume Builder", icon: FileText },
+  { href: "/resume-matcher", label: "Resume Matcher", icon: FileSearch },
+  { href: "/career-navigator", label: "CareerNavigator AI", icon: Bot },
+  { href: "/ai-cover-letter", label: "Cover Letter", icon: PenBox },
+  { href: "/interview", label: "Interview Prep", icon: MessageSquareText },
+  { href: "/resource-hub", label: "Resource Hub", icon: BookOpen },
+];
 
 export default async function Header() {
-  await checkUser();
-
   return (
-    <header className="fixed top-0 w-full border-b bg-background/80 backdrop-blur-md z-50 supports-[backdrop-filter]:bg-background/60">
-      <nav className="container mx-auto px-4 h-16 flex items-center justify-between">
-        <Link href="/">
-          <Image
-            src={"/logo.png"}
-            alt="CareerCraft Logo"
-            width={200}
-            height={60}
-            className="h-20 py-1 w-auto object-contain"
-          />
+    <header className="fixed top-0 z-50 w-full border-b border-white/10 bg-background/75 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
+      <nav className="container mx-auto flex h-16 items-center justify-between px-4">
+        <Link href="/" className="flex items-center gap-3">
+          <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-cyan-400/30 bg-cyan-400/10">
+            <Sparkles className="h-5 w-5 text-cyan-300" />
+          </span>
+          <span className="leading-tight">
+            <span className="block text-sm font-black tracking-[0.24em] text-foreground">
+              CAREERSPHERE
+            </span>
+            <span className="hidden text-xs text-muted-foreground sm:block">
+              AI Career Readiness Platform
+            </span>
+          </span>
         </Link>
 
-        {/* Action Buttons */}
         <div className="flex items-center space-x-2 md:space-x-4">
           <SignedIn>
             <Link href="/dashboard">
               <Button
                 variant="outline"
-                className="hidden md:inline-flex items-center gap-2"
+                className="hidden border-white/15 bg-white/5 md:inline-flex"
               >
                 <LayoutDashboard className="h-4 w-4" />
-                Industry Insights
+                Dashboard
               </Button>
-              <Button variant="ghost" className="md:hidden w-10 h-10 p-0">
+              <Button variant="ghost" className="h-10 w-10 p-0 md:hidden">
                 <LayoutDashboard className="h-4 w-4" />
               </Button>
             </Link>
 
-            {/* Growth Tools Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button className="flex items-center gap-2">
-                  <StarsIcon className="h-4 w-4" />
-                  <span className="hidden md:block">Growth Tools</span>
+                <Button className="bg-cyan-500 text-slate-950 hover:bg-cyan-400">
+                  <BriefcaseBusiness className="h-4 w-4" />
+                  <span className="hidden md:block">Career Tools</span>
                   <ChevronDown className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem asChild>
-                  <Link href="/resume" className="flex items-center gap-2">
-                    <FileText className="h-4 w-4" />
-                    Build Resume
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link
-                    href="/ai-cover-letter"
-                    className="flex items-center gap-2"
-                  >
-                    <PenBox className="h-4 w-4" />
-                    Cover Letter
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/interview" className="flex items-center gap-2">
-                    <GraduationCap className="h-4 w-4" />
-                    Interview Prep
-                  </Link>
-                </DropdownMenuItem>
+              <DropdownMenuContent align="end" className="w-56">
+                {tools.map((tool) => {
+                  const Icon = tool.icon;
+                  return (
+                    <DropdownMenuItem asChild key={tool.href}>
+                      <Link href={tool.href} className="flex items-center gap-2">
+                        <Icon className="h-4 w-4" />
+                        {tool.label}
+                      </Link>
+                    </DropdownMenuItem>
+                  );
+                })}
               </DropdownMenuContent>
             </DropdownMenu>
           </SignedIn>
 
           <SignedOut>
             <SignInButton>
-              <Button variant="outline">Sign In</Button>
+              <Button variant="outline" className="border-white/15 bg-white/5">
+                Sign In
+              </Button>
             </SignInButton>
           </SignedOut>
 

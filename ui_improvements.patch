@@ -1,0 +1,806 @@
+commit 366818902167ead1dcd661878aff50cffa9223cc
+Merge: fb187be cfe4e91 43eb487
+Author: imrishu18 <rishu_2312res526@iitp.ac.in>
+Date:   Tue May 26 14:32:36 2026 +0530
+
+    On main: agent_steps_1_7
+
+diff --cc app/(main)/dashboard/_component/dashboard-view.jsx
+index a9692fc,a9692fc,0000000..1402f8d
+mode 100644,100644,000000..100644
+--- a/app/(main)/dashboard/_component/dashboard-view.jsx
++++ b/app/(main)/dashboard/_component/dashboard-view.jsx
+@@@@ -1,228 -1,228 -1,0 +1,242 @@@@
+  +"use client";
+  +
+  +import React from "react";
+  +import {
+  +  BarChart,
+  +  Bar,
+  +  XAxis,
+  +  YAxis,
+  +  CartesianGrid,
+  +  Tooltip,
+  +  ResponsiveContainer,
+  +} from "recharts";
+  +import {
+  +  BriefcaseIcon,
+  +  LineChart,
+  +  TrendingUp,
+  +  TrendingDown,
+  +  Brain,
+  +} from "lucide-react";
+  +import { format, formatDistanceToNow } from "date-fns";
+  +import {
+  +  Card,
+  +  CardContent,
+  +  CardDescription,
+  +  CardHeader,
+  +  CardTitle,
+  +} from "@/components/ui/card";
+  +import { Badge } from "@/components/ui/badge";
+  +import { Progress } from "@/components/ui/progress";
+  +
+  +const DashboardView = ({ insights }) => {
+  +  // Transform salary data for the chart
+  +  const salaryData = insights.salaryRanges.map((range) => ({
+  +    name: range.role,
+  +    min: range.min / 1000,
+  +    max: range.max / 1000,
+  +    median: range.median / 1000,
+  +  }));
+  +
+  +  const getDemandLevelColor = (level) => {
+  +    switch (level.toLowerCase()) {
+  +      case "high":
+  +        return "bg-green-500";
+  +      case "medium":
+  +        return "bg-yellow-500";
+  +      case "low":
+  +        return "bg-red-500";
+  +      default:
+  +        return "bg-gray-500";
+  +    }
+  +  };
+  +
+  +  const getMarketOutlookInfo = (outlook) => {
+  +    switch (outlook.toLowerCase()) {
+  +      case "positive":
+  +        return { icon: TrendingUp, color: "text-green-500" };
+  +      case "neutral":
+  +        return { icon: LineChart, color: "text-yellow-500" };
+  +      case "negative":
+  +        return { icon: TrendingDown, color: "text-red-500" };
+  +      default:
+  +        return { icon: LineChart, color: "text-gray-500" };
+  +    }
+  +  };
+  +
+  +  const OutlookIcon = getMarketOutlookInfo(insights.marketOutlook).icon;
+  +  const outlookColor = getMarketOutlookInfo(insights.marketOutlook).color;
+  +
+  +  // Format dates using date-fns
+  +  const lastUpdatedDate = format(new Date(insights.lastUpdated), "dd/MM/yyyy");
+  +  const nextUpdateDistance = formatDistanceToNow(
+  +    new Date(insights.nextUpdate),
+  +    { addSuffix: true }
+  +  );
+  +
+  +  return (
+  +    <div className="space-y-6">
+  +      <div className="flex justify-between items-center">
+  +        <Badge variant="outline">Last updated: {lastUpdatedDate}</Badge>
+  +      </div>
+  +
+  +      {/* Market Overview Cards */}
+  +      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+--         <Card>
++++        <Card className="hover:-translate-y-1 hover:shadow-md transition-all">
+  +          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+--             <CardTitle className="text-sm font-medium">
++++            <CardTitle className="text-sm font-medium text-muted-foreground">
+  +              Market Outlook
+  +            </CardTitle>
+--             <OutlookIcon className={`h-4 w-4 ${outlookColor}`} />
++++            <div className={`p-2 rounded-full bg-muted/50 ${outlookColor}`}>
++++              <OutlookIcon className="h-4 w-4" />
++++            </div>
+  +          </CardHeader>
+  +          <CardContent>
+  +            <div className="text-2xl font-bold">{insights.marketOutlook}</div>
+--             <p className="text-xs text-muted-foreground">
++++            <p className="text-xs text-muted-foreground mt-1">
+  +              Next update {nextUpdateDistance}
+  +            </p>
+  +          </CardContent>
+  +        </Card>
+  +
+--         <Card>
++++        <Card className="hover:-translate-y-1 hover:shadow-md transition-all">
+  +          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+--             <CardTitle className="text-sm font-medium">
++++            <CardTitle className="text-sm font-medium text-muted-foreground">
+  +              Industry Growth
+  +            </CardTitle>
+--             <TrendingUp className="h-4 w-4 text-muted-foreground" />
++++            <div className="p-2 rounded-full bg-primary/10 text-primary">
++++              <TrendingUp className="h-4 w-4" />
++++            </div>
+  +          </CardHeader>
+  +          <CardContent>
+  +            <div className="text-2xl font-bold">
+  +              {insights.growthRate.toFixed(1)}%
+  +            </div>
+--             <Progress value={insights.growthRate} className="mt-2" />
++++            <Progress value={insights.growthRate} className="mt-2 h-2" />
+  +          </CardContent>
+  +        </Card>
+  +
+--         <Card>
++++        <Card className="hover:-translate-y-1 hover:shadow-md transition-all">
+  +          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+--             <CardTitle className="text-sm font-medium">Demand Level</CardTitle>
+--             <BriefcaseIcon className="h-4 w-4 text-muted-foreground" />
++++            <CardTitle className="text-sm font-medium text-muted-foreground">Demand Level</CardTitle>
++++            <div className="p-2 rounded-full bg-primary/10 text-primary">
++++              <BriefcaseIcon className="h-4 w-4" />
++++            </div>
+  +          </CardHeader>
+  +          <CardContent>
+  +            <div className="text-2xl font-bold">{insights.demandLevel}</div>
+  +            <div
+  +              className={`h-2 w-full rounded-full mt-2 ${getDemandLevelColor(
+  +                insights.demandLevel
+  +              )}`}
+  +            />
+  +          </CardContent>
+  +        </Card>
+  +
+--         <Card>
++++        <Card className="hover:-translate-y-1 hover:shadow-md transition-all">
+  +          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+--             <CardTitle className="text-sm font-medium">Top Skills</CardTitle>
+--             <Brain className="h-4 w-4 text-muted-foreground" />
++++            <CardTitle className="text-sm font-medium text-muted-foreground">Top Skills</CardTitle>
++++            <div className="p-2 rounded-full bg-primary/10 text-primary">
++++              <Brain className="h-4 w-4" />
++++            </div>
+  +          </CardHeader>
+  +          <CardContent>
+--             <div className="flex flex-wrap gap-1">
++++            <div className="flex flex-wrap gap-2 mt-1">
+  +              {insights.topSkills.map((skill) => (
+--                 <Badge key={skill} variant="secondary">
++++                <Badge key={skill} variant="secondary" className="font-normal">
+  +                  {skill}
+  +                </Badge>
+  +              ))}
+  +            </div>
+  +          </CardContent>
+  +        </Card>
+  +      </div>
+  +
+  +      {/* Salary Ranges Chart */}
+  +      <Card className="col-span-4">
+  +        <CardHeader>
+  +          <CardTitle>Salary Ranges by Role</CardTitle>
+  +          <CardDescription>
+  +            Displaying minimum, median, and maximum salaries (in thousands)
+  +          </CardDescription>
+  +        </CardHeader>
+  +        <CardContent>
+  +          <div className="h-[400px]">
+--             <ResponsiveContainer width="100%" height="100%">
+--               <BarChart data={salaryData}>
+--                 <CartesianGrid strokeDasharray="3 3" />
+--                 <XAxis dataKey="name" />
+--                 <YAxis />
++++            {salaryData.length === 0 ? (
++++              <div className="flex flex-col items-center justify-center h-full text-muted-foreground space-y-2">
++++                <BriefcaseIcon className="h-10 w-10 text-muted" />
++++                <p>No salary data available for your industry yet.</p>
++++              </div>
++++            ) : (
++++              <ResponsiveContainer width="100%" height="100%">
++++                <BarChart data={salaryData}>
++++                  <CartesianGrid strokeDasharray="3 3" />
++++                  <XAxis dataKey="name" />
++++                  <YAxis />
+  +                <Tooltip
+  +                  content={({ active, payload, label }) => {
+  +                    if (active && payload && payload.length) {
+  +                      return (
+  +                        <div className="bg-background border rounded-lg p-2 shadow-md">
+  +                          <p className="font-medium">{label}</p>
+  +                          {payload.map((item) => (
+  +                            <p key={item.name} className="text-sm">
+  +                              {item.name}: ${item.value}K
+  +                            </p>
+  +                          ))}
+  +                        </div>
+  +                      );
+  +                    }
+  +                    return null;
+  +                  }}
+  +                />
+--                 <Bar dataKey="min" fill="#94a3b8" name="Min Salary (K)" />
+--                 <Bar dataKey="median" fill="#64748b" name="Median Salary (K)" />
+--                 <Bar dataKey="max" fill="#475569" name="Max Salary (K)" />
++++                <Bar dataKey="min" fill="hsl(var(--muted-foreground))" name="Min Salary (K)" radius={[4, 4, 0, 0]} />
++++                <Bar dataKey="median" fill="hsl(var(--primary))" name="Median Salary (K)" radius={[4, 4, 0, 0]} />
++++                <Bar dataKey="max" fill="hsl(var(--secondary))" name="Max Salary (K)" radius={[4, 4, 0, 0]} />
+  +              </BarChart>
+  +            </ResponsiveContainer>
+  +          </div>
+  +        </CardContent>
+  +      </Card>
+  +
+  +      {/* Industry Trends */}
+  +      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+  +        <Card>
+  +          <CardHeader>
+  +            <CardTitle>Key Industry Trends</CardTitle>
+  +            <CardDescription>
+  +              Current trends shaping the industry
+  +            </CardDescription>
+  +          </CardHeader>
+  +          <CardContent>
+  +            <ul className="space-y-4">
+  +              {insights.keyTrends.map((trend, index) => (
+  +                <li key={index} className="flex items-start space-x-2">
+  +                  <div className="h-2 w-2 mt-2 rounded-full bg-primary" />
+  +                  <span>{trend}</span>
+  +                </li>
+  +              ))}
+  +            </ul>
+  +          </CardContent>
+  +        </Card>
+  +
+  +        <Card>
+  +          <CardHeader>
+  +            <CardTitle>Recommended Skills</CardTitle>
+  +            <CardDescription>Skills to consider developing</CardDescription>
+  +          </CardHeader>
+  +          <CardContent>
+  +            <div className="flex flex-wrap gap-2">
+  +              {insights.recommendedSkills.map((skill) => (
+  +                <Badge key={skill} variant="outline">
+  +                  {skill}
+  +                </Badge>
+  +              ))}
+  +            </div>
+  +          </CardContent>
+  +        </Card>
+  +      </div>
+  +    </div>
+  +  );
+  +};
+  +
+  +export default DashboardView;
+diff --cc app/(main)/dashboard/layout.js
+index 7ac447a,7ac447a,0000000..00abe60
+mode 100644,100644,000000..100644
+--- a/app/(main)/dashboard/layout.js
++++ b/app/(main)/dashboard/layout.js
+@@@@ -1,17 -1,17 -1,0 +1,27 @@@@
+  +import { BarLoader } from "react-spinners";
+  +import { Suspense } from "react";
+  +
+  +export default function Layout({ children }) {
+  +  return (
+  +    <div className="px-5">
+  +      <div className="flex items-center justify-between mb-5">
+  +        <h1 className="text-6xl font-bold gradient-title">Industry Insights</h1>
+  +      </div>
+  +      <Suspense
+--         fallback={<BarLoader className="mt-4" width={"100%"} color="gray" />}
++++        fallback={
++++          <div className="space-y-6 mt-4">
++++            <div className="h-6 w-48 bg-muted animate-pulse rounded-md" />
++++            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
++++              {[1, 2, 3, 4].map((i) => (
++++                <div key={i} className="h-32 bg-muted animate-pulse rounded-xl" />
++++              ))}
++++            </div>
++++            <div className="h-[400px] bg-muted animate-pulse rounded-xl" />
++++          </div>
++++        }
+  +      >
+  +        {children}
+  +      </Suspense>
+  +    </div>
+  +  );
+  +}
+diff --cc app/(main)/interview/_components/quiz-list.jsx
+index 4376cc7,4376cc7,0000000..8ffaf81
+mode 100644,100644,000000..100644
+--- a/app/(main)/interview/_components/quiz-list.jsx
++++ b/app/(main)/interview/_components/quiz-list.jsx
+@@@@ -1,93 -1,93 -1,0 +1,93 @@@@
+  +"use client";
+  +
+  +import { useState } from "react";
+  +import { format } from "date-fns";
+  +import { useRouter } from "next/navigation";
+  +import { Button } from "@/components/ui/button";
+  +import {
+  +  Card,
+  +  CardContent,
+  +  CardDescription,
+  +  CardHeader,
+  +  CardTitle,
+  +} from "@/components/ui/card";
+  +import {
+  +  Dialog,
+  +  DialogContent,
+  +  DialogHeader,
+  +  DialogTitle,
+  +} from "@/components/ui/dialog";
+  +import QuizResult from "./quiz-result";
+  +
+  +export default function QuizList({ assessments }) {
+  +  const router = useRouter();
+  +  const [selectedQuiz, setSelectedQuiz] = useState(null);
+  +
+  +  return (
+  +    <>
+  +      <Card>
+  +        <CardHeader>
+  +          <div className="flex items-center justify-between">
+  +            <div>
+  +              <CardTitle className="gradient-title text-3xl md:text-4xl">
+  +                Recent Quizzes
+  +              </CardTitle>
+  +              <CardDescription>
+  +                Review your past quiz performance
+  +              </CardDescription>
+  +            </div>
+  +            <Button onClick={() => router.push("/interview/mock")}>
+  +              Start New Quiz
+  +            </Button>
+  +          </div>
+  +        </CardHeader>
+  +        <CardContent>
+  +          <div className="space-y-4">
+  +            {assessments?.map((assessment, i) => (
+  +              <Card
+  +                key={assessment.id}
+  +                className="cursor-pointer hover:bg-muted/50 transition-colors"
+  +                onClick={() => setSelectedQuiz(assessment)}
+  +              >
+  +                <CardHeader>
+  +                  <CardTitle className="gradient-title text-2xl">
+  +                    Quiz {i + 1}
+  +                  </CardTitle>
+  +                  <CardDescription className="flex justify-between w-full">
+  +                    <div>Score: {assessment.quizScore.toFixed(1)}%</div>
+  +                    <div>
+  +                      {format(
+  +                        new Date(assessment.createdAt),
+  +                        "MMMM dd, yyyy HH:mm"
+  +                      )}
+  +                    </div>
+  +                  </CardDescription>
+  +                </CardHeader>
+  +                {assessment.improvementTip && (
+  +                  <CardContent>
+--                     <p className="text-sm text-muted-foreground">
+--                       {assessment.improvementTip}
++++                    <p className="text-sm text-muted-foreground line-clamp-2">
++++                      {assessment.improvementTip.replace(/[*#`]/g, "")}
+  +                    </p>
+  +                  </CardContent>
+  +                )}
+  +              </Card>
+  +            ))}
+  +          </div>
+  +        </CardContent>
+  +      </Card>
+  +
+  +      <Dialog open={!!selectedQuiz} onOpenChange={() => setSelectedQuiz(null)}>
+  +        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+  +          <DialogHeader>
+  +            <DialogTitle></DialogTitle>
+  +          </DialogHeader>
+  +          <QuizResult
+  +            result={selectedQuiz}
+  +            hideStartNew
+  +            onStartNew={() => router.push("/interview/mock")}
+  +          />
+  +        </DialogContent>
+  +      </Dialog>
+  +    </>
+  +  );
+  +}
+diff --cc app/(main)/interview/_components/quiz-result.jsx
+index 2994fcb,2994fcb,0000000..752d7a0
+mode 100644,100644,000000..100644
+--- a/app/(main)/interview/_components/quiz-result.jsx
++++ b/app/(main)/interview/_components/quiz-result.jsx
+@@@@ -1,72 -1,72 -1,0 +1,96 @@@@
+  +"use client";
+  +
+  +import { Trophy, CheckCircle2, XCircle } from "lucide-react";
+  +import { Button } from "@/components/ui/button";
+  +import { CardContent, CardFooter } from "@/components/ui/card";
+  +import { Progress } from "@/components/ui/progress";
++++import ReactMarkdown from "react-markdown";
+  +
+  +export default function QuizResult({
+  +  result,
+  +  hideStartNew = false,
+  +  onStartNew,
+  +}) {
+  +  if (!result) return null;
+  +
+  +  return (
+  +    <div className="mx-auto">
+  +      <h1 className="flex items-center gap-2 text-3xl gradient-title">
+  +        <Trophy className="h-6 w-6 text-yellow-500" />
+  +        Quiz Results
+  +      </h1>
+  +
+  +      <CardContent className="space-y-6">
+  +        {/* Score Overview */}
+  +        <div className="text-center space-y-2">
+  +          <h3 className="text-2xl font-bold">{result.quizScore.toFixed(1)}%</h3>
+  +          <Progress value={result.quizScore} className="w-full" />
+  +        </div>
+  +
+  +        {/* Improvement Tip */}
+  +        {result.improvementTip && (
+--           <div className="bg-muted p-4 rounded-lg">
+--             <p className="font-medium">Improvement Tip:</p>
+--             <p className="text-muted-foreground">{result.improvementTip}</p>
++++          <div className="bg-muted p-6 rounded-lg">
++++            <ReactMarkdown
++++              className="prose dark:prose-invert max-w-none"
++++              components={{
++++                h3: ({ node, ...props }) => (
++++                  <h3 className="text-lg font-semibold mb-2" {...props} />
++++                ),
++++                p: ({ node, ...props }) => <p className="mb-2" {...props} />,
++++                ul: ({ node, ...props }) => (
++++                  <ul className="list-disc pl-5 space-y-1 mb-4" {...props} />
++++                ),
++++                li: ({ node, ...props }) => (
++++                  <li className="text-muted-foreground" {...props} />
++++                ),
++++              }}
++++            >
++++              {result.improvementTip}
++++            </ReactMarkdown>
+  +          </div>
+  +        )}
+  +
+  +        {/* Questions Review */}
+  +        <div className="space-y-4">
+--           <h3 className="font-medium">Question Review</h3>
++++          <h3 className="font-medium text-lg">Question Review</h3>
+  +          {result.questions.map((q, index) => (
+--             <div key={index} className="border rounded-lg p-4 space-y-2">
++++            <div key={index} className="border rounded-lg p-5 space-y-3">
+  +              <div className="flex items-start justify-between gap-2">
+--                 <p className="font-medium">{q.question}</p>
++++                <p className="font-medium text-base">{q.question}</p>
+  +                {q.isCorrect ? (
+--                   <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0" />
++++                  <CheckCircle2 className="h-6 w-6 text-green-500 flex-shrink-0" />
+  +                ) : (
+--                   <XCircle className="h-5 w-5 text-red-500 flex-shrink-0" />
++++                  <XCircle className="h-6 w-6 text-red-500 flex-shrink-0" />
+  +                )}
+  +              </div>
+  +              <div className="text-sm text-muted-foreground">
+--                 <p>Your answer: {q.userAnswer}</p>
+--                 {!q.isCorrect && <p>Correct answer: {q.answer}</p>}
++++                <p>
++++                  <span className="font-semibold text-foreground">Your answer:</span>{" "}
++++                  {q.userAnswer.replace(/^[A-D][.)]\s*/i, "")}
++++                </p>
++++                {!q.isCorrect && (
++++                  <p>
++++                    <span className="font-semibold text-foreground">Correct answer:</span>{" "}
++++                    {q.answer.replace(/^[A-D][.)]\s*/i, "")}
++++                  </p>
++++                )}
+  +              </div>
+--               <div className="text-sm bg-muted p-2 rounded">
+--                 <p className="font-medium">Explanation:</p>
+--                 <p>{q.explanation}</p>
++++              <div className="text-sm bg-muted/50 p-3 rounded-lg">
++++                <p className="font-medium mb-1">Explanation:</p>
++++                <p className="text-muted-foreground">{q.explanation}</p>
+  +              </div>
+  +            </div>
+  +          ))}
+  +        </div>
+  +      </CardContent>
+  +
+  +      {!hideStartNew && (
+  +        <CardFooter>
+  +          <Button onClick={onStartNew} className="w-full">
+  +            Start New Quiz
+  +          </Button>
+  +        </CardFooter>
+  +      )}
+  +    </div>
+  +  );
+  +}
+diff --cc app/(main)/interview/_components/quiz.jsx
+index d9969c8,d9969c8,0000000..43efd8f
+mode 100644,100644,000000..100644
+--- a/app/(main)/interview/_components/quiz.jsx
++++ b/app/(main)/interview/_components/quiz.jsx
+@@@@ -1,177 -1,177 -1,0 +1,187 @@@@
+  +"use client";
+  +
+  +import { useState, useEffect } from "react";
+  +import { toast } from "sonner";
+  +import { Button } from "@/components/ui/button";
+  +import {
+  +  Card,
+  +  CardContent,
+  +  CardFooter,
+  +  CardHeader,
+  +  CardTitle,
+  +} from "@/components/ui/card";
+  +import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+  +import { Label } from "@/components/ui/label";
+  +import { generateQuiz, saveQuizResult } from "@/actions/interview";
+  +import QuizResult from "./quiz-result";
+  +import useFetch from "@/hooks/use-fetch";
+  +import { BarLoader } from "react-spinners";
+  +
+  +export default function Quiz() {
+  +  const [currentQuestion, setCurrentQuestion] = useState(0);
+  +  const [answers, setAnswers] = useState([]);
+  +  const [showExplanation, setShowExplanation] = useState(false);
+  +
+  +  const {
+  +    loading: generatingQuiz,
+  +    fn: generateQuizFn,
+  +    data: quizData,
+  +  } = useFetch(generateQuiz);
+  +
+  +  const {
+  +    loading: savingResult,
+  +    fn: saveQuizResultFn,
+  +    data: resultData,
+  +    setData: setResultData,
+  +  } = useFetch(saveQuizResult);
+  +
+  +  useEffect(() => {
+  +    if (quizData) {
+  +      setAnswers(new Array(quizData.length).fill(null));
+  +    }
+  +  }, [quizData]);
+  +
+  +  const handleAnswer = (answer) => {
+  +    const newAnswers = [...answers];
+  +    newAnswers[currentQuestion] = answer;
+  +    setAnswers(newAnswers);
+  +  };
+  +
+  +  const handleNext = () => {
+  +    if (currentQuestion < quizData.length - 1) {
+  +      setCurrentQuestion(currentQuestion + 1);
+  +      setShowExplanation(false);
+  +    } else {
+  +      finishQuiz();
+  +    }
+  +  };
+  +
+  +  const calculateScore = () => {
+  +    let correct = 0;
+  +    answers.forEach((answer, index) => {
+  +      if (answer === quizData[index].correctAnswer) {
+  +        correct++;
+  +      }
+  +    });
+  +    return (correct / quizData.length) * 100;
+  +  };
+  +
+  +  const finishQuiz = async () => {
+  +    const score = calculateScore();
+  +    try {
+  +      await saveQuizResultFn(quizData, answers, score);
+  +      toast.success("Quiz completed!");
+  +    } catch (error) {
+  +      toast.error(error.message || "Failed to save quiz results");
+  +    }
+  +  };
+  +
+  +  const startNewQuiz = () => {
+  +    setCurrentQuestion(0);
+  +    setAnswers([]);
+  +    setShowExplanation(false);
+  +    generateQuizFn();
+  +    setResultData(null);
+  +  };
+  +
+  +  if (generatingQuiz) {
+  +    return <BarLoader className="mt-4" width={"100%"} color="gray" />;
+  +  }
+  +
+  +  // Show results if quiz is completed
+  +  if (resultData) {
+  +    return (
+  +      <div className="mx-2">
+  +        <QuizResult result={resultData} onStartNew={startNewQuiz} />
+  +      </div>
+  +    );
+  +  }
+  +
+  +  if (!quizData) {
+  +    return (
+  +      <Card className="mx-2">
+  +        <CardHeader>
+  +          <CardTitle>Ready to test your knowledge?</CardTitle>
+  +        </CardHeader>
+  +        <CardContent>
+  +          <p className="text-muted-foreground">
+  +            This quiz contains 10 questions specific to your industry and
+  +            skills. Take your time and choose the best answer for each question.
+  +          </p>
+  +        </CardContent>
+  +        <CardFooter>
+  +          <Button onClick={generateQuizFn} className="w-full">
+  +            Start Quiz
+  +          </Button>
+  +        </CardFooter>
+  +      </Card>
+  +    );
+  +  }
+  +
+  +  const question = quizData[currentQuestion];
+  +
+  +  return (
+  +    <Card className="mx-2">
+  +      <CardHeader>
+--         <CardTitle>
++++        <CardTitle className="text-sm text-muted-foreground font-medium">
+  +          Question {currentQuestion + 1} of {quizData.length}
+  +        </CardTitle>
+  +      </CardHeader>
+--       <CardContent className="space-y-4">
+--         <p className="text-lg font-medium">{question.question}</p>
++++      <CardContent className="space-y-6">
++++        <p className="text-xl font-medium">{question.question}</p>
+  +        <RadioGroup
+  +          onValueChange={handleAnswer}
+  +          value={answers[currentQuestion]}
+--           className="space-y-2"
++++          className="space-y-3"
+  +        >
+  +          {question.options.map((option, index) => (
+--             <div key={index} className="flex items-center space-x-2">
++++            <div 
++++              key={index} 
++++              className={`flex items-center space-x-3 border rounded-lg p-4 cursor-pointer transition-colors ${
++++                answers[currentQuestion] === option 
++++                  ? "border-primary bg-primary/5" 
++++                  : "border-muted hover:border-primary/50"
++++              }`}
++++              onClick={() => handleAnswer(option)}
++++            >
+  +              <RadioGroupItem value={option} id={`option-${index}`} />
+--               <Label htmlFor={`option-${index}`}>{option}</Label>
++++              <Label htmlFor={`option-${index}`} className="flex-1 cursor-pointer font-medium text-sm md:text-base leading-relaxed">
++++                {option.replace(/^[A-D][.)]\s*/i, "")}
++++              </Label>
+  +            </div>
+  +          ))}
+  +        </RadioGroup>
+  +
+  +        {showExplanation && (
+  +          <div className="mt-4 p-4 bg-muted rounded-lg">
+  +            <p className="font-medium">Explanation:</p>
+  +            <p className="text-muted-foreground">{question.explanation}</p>
+  +          </div>
+  +        )}
+  +      </CardContent>
+  +      <CardFooter className="flex justify-between">
+  +        {!showExplanation && (
+  +          <Button
+  +            onClick={() => setShowExplanation(true)}
+  +            variant="outline"
+  +            disabled={!answers[currentQuestion]}
+  +          >
+  +            Show Explanation
+  +          </Button>
+  +        )}
+  +        <Button
+  +          onClick={handleNext}
+  +          disabled={!answers[currentQuestion] || savingResult}
+  +          className="ml-auto"
+  +        >
+  +          {savingResult && (
+  +            <BarLoader className="mt-4" width={"100%"} color="gray" />
+  +          )}
+  +          {currentQuestion < quizData.length - 1
+  +            ? "Next Question"
+  +            : "Finish Quiz"}
+  +        </Button>
+  +      </CardFooter>
+  +    </Card>
+  +  );
+  +}
+diff --cc app/(main)/interview/_components/stats-cards.jsx
+index 305cbcc,305cbcc,0000000..15db170
+mode 100644,100644,000000..100644
+--- a/app/(main)/interview/_components/stats-cards.jsx
++++ b/app/(main)/interview/_components/stats-cards.jsx
+@@@@ -1,69 -1,69 -1,0 +1,69 @@@@
+  +import { Brain, Target, Trophy } from "lucide-react";
+  +import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+  +
+  +export default function StatsCards({ assessments }) {
+  +  const getAverageScore = () => {
+  +    if (!assessments?.length) return 0;
+  +    const total = assessments.reduce(
+  +      (sum, assessment) => sum + assessment.quizScore,
+  +      0
+  +    );
+  +    return (total / assessments.length).toFixed(1);
+  +  };
+  +
+  +  const getLatestAssessment = () => {
+  +    if (!assessments?.length) return null;
+  +    return assessments[0];
+  +  };
+  +
+  +  const getTotalQuestions = () => {
+  +    if (!assessments?.length) return 0;
+  +    return assessments.reduce(
+  +      (sum, assessment) => sum + assessment.questions.length,
+  +      0
+  +    );
+  +  };
+  +
+  +  return (
+  +    <div className="grid gap-4 md:grid-cols-3">
+  +      <Card>
+  +        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+  +          <CardTitle className="text-sm font-medium">Average Score</CardTitle>
+--           <Trophy className="h-4 w-4 text-muted-foreground" />
++++          <Trophy className="h-4 w-4 text-yellow-500" />
+  +        </CardHeader>
+  +        <CardContent>
+  +          <div className="text-2xl font-bold">{getAverageScore()}%</div>
+  +          <p className="text-xs text-muted-foreground">
+  +            Across all assessments
+  +          </p>
+  +        </CardContent>
+  +      </Card>
+  +
+  +      <Card>
+  +        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+  +          <CardTitle className="text-sm font-medium">
+  +            Questions Practiced
+  +          </CardTitle>
+--           <Brain className="h-4 w-4 text-muted-foreground" />
++++          <Brain className="h-4 w-4 text-primary" />
+  +        </CardHeader>
+  +        <CardContent>
+  +          <div className="text-2xl font-bold">{getTotalQuestions()}</div>
+  +          <p className="text-xs text-muted-foreground">Total questions</p>
+  +        </CardContent>
+  +      </Card>
+  +
+  +      <Card>
+  +        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+  +          <CardTitle className="text-sm font-medium">Latest Score</CardTitle>
+--           <Target className="h-4 w-4 text-muted-foreground" />
++++          <Target className="h-4 w-4 text-primary" />
+  +        </CardHeader>
+  +        <CardContent>
+  +          <div className="text-2xl font-bold">
+  +            {getLatestAssessment()?.quizScore.toFixed(1) || 0}%
+  +          </div>
+  +          <p className="text-xs text-muted-foreground">Most recent quiz</p>
+  +        </CardContent>
+  +      </Card>
+  +    </div>
+  +  );
+  +}

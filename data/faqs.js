@@ -1,32 +1,32 @@
 export const faqs = [
   {
-    question: "What makes CareerCraft unique as a career development tool?",
+    question: "What is CareerSphere?",
     answer:
-      "CareerCraft combines AI-powered career tools with industry-specific insights to help you advance your career. Our platform offers three main features: an intelligent resume builder, a cover letter generator, and an adaptive interview preparation system. Each tool is tailored to your industry and skills, providing personalized guidance for your professional journey.",
+      "CareerSphere is an AI-powered career readiness platform that brings resume building, resume matching, cover letters, interview preparation, industry insights, and career guidance into one professional workspace.",
   },
   {
-    question: "How does CareerCraft create tailored content?",
+    question: "How does Resume Matcher calculate my score?",
     answer:
-      "CareerCraft learns about your industry, experience, and skills during onboarding. It then uses this information to generate customized resumes, cover letters, and interview questions. The content is specifically aligned with your professional background and industry standards, making it highly relevant and effective.",
+      "Resume Matcher compares your uploaded PDF with a target job description and returns a structured analysis covering ATS fit, matched keywords, missing skills, strengths, and improvement recommendations.",
   },
   {
-    question: "How accurate and up-to-date are CareerCraft's industry insights?",
+    question: "What can CareerNavigator AI help with?",
     answer:
-      "We update our industry insights weekly using advanced AI analysis of current market trends. This includes salary data, in-demand skills, and industry growth patterns. Our system constantly evolves to ensure you have the most relevant information for your career decisions.",
+      "CareerNavigator AI can help with resume advice, career roadmap planning, skill recommendations, interview preparation, job search strategy, and role-specific preparation.",
   },
   {
-    question: "Is my data secure with CareerCraft?",
+    question: "Are the resume and cover letter outputs editable?",
     answer:
-      "Absolutely. We prioritize the security of your professional information. All data is encrypted and securely stored using industry-standard practices. We use Clerk for authentication and never share your personal information with third parties.",
+      "Yes. AI-generated content is a professional starting point, and you can edit resumes, cover letters, and generated suggestions before downloading or saving them.",
   },
   {
-    question: "How can I track my interview preparation progress?",
+    question: "How are industry insights personalized?",
     answer:
-      "CareerCraft tracks your performance across multiple practice interviews, providing detailed analytics and improvement suggestions. You can view your progress over time, identify areas for improvement, and receive AI-generated tips to enhance your interview skills based on your responses.",
+      "CareerSphere uses your onboarding profile, industry, skills, and experience level to generate relevant market insights, recommended skills, and preparation guidance.",
   },
   {
-    question: "Can I edit the AI-generated content?",
+    question: "Is my career data secure?",
     answer:
-      "Yes! While CareerCraft generates high-quality initial content, you have full control to edit and customize all generated resumes, cover letters, and other content. Our markdown editor makes it easy to refine the content to perfectly match your needs.",
+      "CareerSphere keeps authentication in the existing Clerk flow and stores user data through the existing Prisma and PostgreSQL structure. Uploaded matcher files are analyzed for the request and are not persisted in the database.",
   },
 ];

@@ -24,21 +24,26 @@ export default function PerformanceChart({ assessments }) {
 
   useEffect(() => {
     if (assessments) {
-      const formattedData = assessments.map((assessment) => ({
-        date: format(new Date(assessment.createdAt), "MMM dd"),
-        score: assessment.quizScore,
-      }));
+      const formattedData = [...assessments]
+        .reverse()
+        .map((assessment) => ({
+          date: format(new Date(assessment.createdAt), "MMM dd"),
+          score: assessment.quizScore,
+          category: assessment.category,
+        }));
       setChartData(formattedData);
     }
   }, [assessments]);
 
   return (
-    <Card>
+    <Card className="border-white/10 bg-slate-950/55 shadow-[0_18px_60px_-48px_rgba(15,23,42,0.95)]">
       <CardHeader>
-        <CardTitle className="gradient-title text-3xl md:text-4xl">
+        <CardTitle className="text-3xl font-semibold tracking-tight text-slate-50 md:text-4xl">
           Performance Trend
         </CardTitle>
-        <CardDescription>Your quiz scores over time</CardDescription>
+        <CardDescription className="text-slate-400">
+          Your quiz scores over time
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="h-[300px]">
@@ -51,11 +56,11 @@ export default function PerformanceChart({ assessments }) {
                 content={({ active, payload }) => {
                   if (active && payload?.length) {
                     return (
-                      <div className="bg-background border rounded-lg p-2 shadow-md">
-                        <p className="text-sm font-medium">
+                      <div className="rounded-lg border border-white/10 bg-slate-950 p-2 shadow-md">
+                        <p className="text-sm font-medium text-slate-100">
                           Score: {payload[0].value}%
                         </p>
-                        <p className="text-xs text-muted-foreground">
+                        <p className="text-xs text-slate-500">
                           {payload[0].payload.date}
                         </p>
                       </div>

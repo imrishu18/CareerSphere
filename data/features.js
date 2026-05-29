@@ -1,27 +1,47 @@
-import { BrainCircuit, Briefcase, LineChart, ScrollText } from "lucide-react";
+import {
+  Bot,
+  FileCheck2,
+  FileSearch,
+  LineChart,
+  MessageSquareText,
+  PenLine,
+} from "lucide-react";
 
 export const features = [
   {
-    icon: <BrainCircuit className="w-10 h-10 mb-4 text-primary" />,
-    title: "AI-Powered Career Guidance",
+    icon: <FileCheck2 className="mb-4 h-10 w-10 text-cyan-300" />,
+    title: "AI Resume Builder",
     description:
-      "Get personalized career advice and insights powered by advanced AI technology.",
+      "Create ATS-friendly resumes with stronger wording, clean structure, and recruiter-ready formatting.",
   },
   {
-    icon: <Briefcase className="w-10 h-10 mb-4 text-primary" />,
+    icon: <FileSearch className="mb-4 h-10 w-10 text-emerald-300" />,
+    title: "Resume Matcher",
+    description:
+      "Compare your resume against job descriptions, uncover missing skills, and improve your match score.",
+  },
+  {
+    icon: <Bot className="mb-4 h-10 w-10 text-violet-300" />,
+    title: "CareerNavigator AI",
+    description:
+      "Get conversational career guidance, skill roadmaps, resume advice, and job preparation support.",
+  },
+  {
+    icon: <MessageSquareText className="mb-4 h-10 w-10 text-amber-300" />,
     title: "Interview Preparation",
     description:
-      "Practice with role-specific questions and get instant feedback to improve your performance.",
+      "Practice role-specific questions, review performance analytics, and receive improvement tips.",
   },
   {
-    icon: <LineChart className="w-10 h-10 mb-4 text-primary" />,
+    icon: <LineChart className="mb-4 h-10 w-10 text-sky-300" />,
     title: "Industry Insights",
     description:
-      "Stay ahead with real-time industry trends, salary data, and market analysis.",
+      "Explore market trends, salary ranges, recommended skills, and career demand signals.",
   },
   {
-    icon: <ScrollText className="w-10 h-10 mb-4 text-primary" />,
-    title: "Smart Resume Creation",
-    description: "Generate ATS-optimized resumes with AI assistance.",
+    icon: <PenLine className="mb-4 h-10 w-10 text-rose-300" />,
+    title: "Cover Letter Studio",
+    description:
+      "Generate polished, role-specific cover letters with professional PDF export.",
   },
 ];
