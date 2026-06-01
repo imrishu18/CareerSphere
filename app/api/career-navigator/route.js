@@ -2,22 +2,33 @@ import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { db } from "@/lib/prisma";
-import { PREMIUM_MARKDOWN_RESPONSE_RULES, parseJsonResponse } from "@/lib/ai-utils";
+import { PREMIUM_MARKDOWN_RESPONSE_RULES } from "@/lib/ai-utils";
+import {
+  GEMINI_TIMEOUT_MS,
+  buildApiResponse,
+  buildCareerNavigatorFallback,
+  buildFailureResponse,
+  buildPlainTextPrompt,
+  classifyCareerNavigatorRequest,
+  getTokenBudgetForRequestType,
+  withTimeout,
+} from "./response-helpers";
 
 export const runtime = "nodejs";
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_CAREER_NAVIGATOR_API_KEY);
 
-const fallback = {
-  reply:
-    "### Quick Reset\n\nI could not format a complete response this time.\n\n### What To Send Next\n\n- Your target role\n- Your current skills\n- The deadline or interview date\n- The specific area you want to improve\n\n### Immediate Action\n\nAsk again with those details and I will build a focused plan.",
-  suggestedPrompts: [
-    "Create a 30-day preparation roadmap for my target role",
-    "Review the skills I should improve first",
-    "Give me interview practice questions",
-  ],
-};
+function getCareerNavigatorModel(maxOutputTokens) {
+  return genAI.getGenerativeModel({
+    model: "gemini-2.5-flash",
+    generationConfig: {
+      maxOutputTokens,
+      temperature: 0.45,
+    },
+  });
+}
+
+const fallback = buildCareerNavigatorFallback();
 
 export async function POST(request) {
   const { userId } = await auth();
@@ -64,53 +75,73 @@ export async function POST(request) {
     const conversation = messages
       .map((message) => `${message.role === "assistant" ? "Assistant" : "User"}: ${message.content}`)
       .join("\n\n");
+    const requestType = classifyCareerNavigatorRequest(latest);
+    const tokenBudget = getTokenBudgetForRequestType(requestType);
 
-const prompt = `
-You are CareerNavigator AI inside CareerSphere, a premium AI-powered career readiness platform.
-You must deeply personalize your response based on the user's exact profile data.
-
-Return ONLY valid JSON:
-{
-  "reply": "Markdown response following strict formatting rules",
-  "suggestedPrompts": ["string", "string", "string"]
-}
-
-PERSONALIZATION RULES:
-- Tailor all advice, roadmaps, learning paths, and interview prep specifically to the user's industry, sub-industry, skills, experience, and goals.
-- Different users must receive entirely different technologies, interview questions, and career paths based on their profile.
-- If profile fields (like experience or skills) are "Not specified", provide graceful fallback advice but gently encourage them to provide that context in the chat.
-- Adapt the complexity of your advice. (e.g., beginner vs senior).
-- Do NOT hardcode generic responses. Make every response feel intelligent and custom-built for this exact user.
-
-GENERAL RULES:
-- Be specific, honest, and action-oriented.
-- Do not claim certifications, projects, grades, or experience the user did not provide.
-- Include an "Immediate Next Steps" section with 3-5 practical actions.
-- If the user asks for a roadmap, include precise time blocks and measurable outputs.
-- Keep the reply useful, highly focused, and recruiter-ready.
-${PREMIUM_MARKDOWN_RESPONSE_RULES}
-
-Profile context:
-${JSON.stringify(profileContext, null, 2)}
-
-Recent conversation:
-${conversation}
-`;
-
-    const result = await model.generateContent(prompt);
-    const parsed = parseJsonResponse(result.response.text(), fallback);
-
-    return NextResponse.json({
-      reply: typeof parsed.reply === "string" ? parsed.reply : fallback.reply,
-      suggestedPrompts: Array.isArray(parsed.suggestedPrompts)
-        ? parsed.suggestedPrompts.slice(0, 3)
-        : fallback.suggestedPrompts,
+    const prompt = buildPlainTextPrompt({
+      profileContext,
+      conversation,
+      formattingRules: PREMIUM_MARKDOWN_RESPONSE_RULES,
+      requestType,
     });
+
+    try {
+      console.info("[CareerNavigator] AI request started");
+      console.info("[CareerNavigator] Request classification", {
+        requestType,
+        tokenBudget,
+      });
+      console.info("[CareerNavigator] Prompt length", {
+        length: prompt.length,
+      });
+      const startedAt = Date.now();
+      const result = await withTimeout(
+        getCareerNavigatorModel(tokenBudget).generateContent(prompt),
+        GEMINI_TIMEOUT_MS
+      );
+      const responseTimeMs = Date.now() - startedAt;
+      const aiText = result?.response?.text?.() || "";
+      console.info("[CareerNavigator] AI response received");
+      console.info("[CareerNavigator] Gemini response time", {
+        responseTimeMs,
+      });
+      console.info("[CareerNavigator] Response length", {
+        length: aiText.length,
+      });
+
+      const response = buildApiResponse({
+        aiText,
+        profileContext,
+        fallbackUsed: !aiText.trim(),
+      });
+      console.info("[CareerNavigator] Formatted response length", {
+        length: response.reply.length,
+      });
+
+      if (response.fallbackUsed) {
+        console.warn("[CareerNavigator] Fallback activated");
+      }
+
+      return NextResponse.json(response);
+    } catch (error) {
+      const isTimeout = error?.code === "CAREER_NAVIGATOR_TIMEOUT";
+      console.error(
+        isTimeout
+          ? "[CareerNavigator] Timeout activated"
+          : "[CareerNavigator] API failure",
+        {
+          error: error?.message || error,
+        }
+      );
+      console.warn("[CareerNavigator] Fallback activated");
+
+      return NextResponse.json(buildFailureResponse({ profileContext, reply: fallback.reply }));
+    }
   } catch (error) {
-    console.error("CareerNavigator error:", error);
-    return NextResponse.json(
-      { error: "CareerNavigator AI could not respond. Please try again." },
-      { status: 500 }
-    );
+    console.error("CareerNavigator error:", {
+      error: error?.message || error,
+    });
+    console.warn("[CareerNavigator] Fallback activated");
+    return NextResponse.json(buildFailureResponse());
   }
 }

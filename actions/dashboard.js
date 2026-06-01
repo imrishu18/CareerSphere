@@ -4,7 +4,7 @@ import { db } from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_INDUSTRY_INSIGHTS_API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
 // One week in milliseconds, used for scheduling insight refreshes
@@ -67,7 +67,10 @@ export async function getIndustryInsights() {
 
   const user = await db.user.findUnique({
     where: { clerkUserId: userId },
-    include: { industryInsight: true },
+    select: {
+      industry: true,
+      industryInsight: true,
+    },
   });
 
   if (!user) throw new Error("User not found");
@@ -126,17 +129,45 @@ export async function getDashboardMetrics() {
 
   const user = await db.user.findUnique({
     where: { clerkUserId: userId },
-    include: {
-      resume: true,
+    select: {
+      id: true,
+      industry: true,
+      experience: true,
+      bio: true,
+      skills: true,
+      resume: {
+        select: {
+          content: true,
+        },
+      },
       assessments: {
         orderBy: { createdAt: "asc" },
         take: 12,
+        select: {
+          category: true,
+          createdAt: true,
+          quizScore: true,
+        },
       },
-      industryInsight: true,
+      industryInsight: {
+        select: {
+          recommendedSkills: true,
+        },
+      },
     },
   });
 
   if (!user) throw new Error("User not found");
+
+  const interviewAssessments = await db.assessment.findMany({
+    where: { userId: user.id },
+    orderBy: { createdAt: "asc" },
+    select: {
+      category: true,
+      createdAt: true,
+      quizScore: true,
+    },
+  });
 
   const profileFields = [
     user.industry,
@@ -147,12 +178,12 @@ export async function getDashboardMetrics() {
   const profileCompleteness = Math.round(
     (profileFields.filter(Boolean).length / profileFields.length) * 100
   );
-  const averageInterviewScore = user.assessments.length
+  const averageInterviewScore = interviewAssessments.length
     ? Math.round(
-        user.assessments.reduce(
+        interviewAssessments.reduce(
           (sum, assessment) => sum + assessment.quizScore,
           0
-        ) / user.assessments.length
+        ) / interviewAssessments.length
       )
     : 0;
   const userSkills = new Set((user.skills || []).map((skill) => skill.toLowerCase()));
@@ -186,7 +217,7 @@ export async function getDashboardMetrics() {
       .filter((skill) => !userSkills.has(skill.toLowerCase()))
       .slice(0, 4)
       .map((skill) => `${skill} certification or guided project`),
-    interviewTrend: user.assessments.map((assessment) => ({
+    interviewTrend: interviewAssessments.map((assessment) => ({
       date: assessment.createdAt,
       score: assessment.quizScore,
       category: assessment.category,

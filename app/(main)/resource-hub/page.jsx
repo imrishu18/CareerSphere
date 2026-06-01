@@ -66,16 +66,15 @@ function ResourceCard({ resource }) {
   const Icon = categoryIcons[resource.category] || ExternalLink;
 
   return (
-    <Card className="group relative flex h-full min-h-[232px] flex-col overflow-hidden border-white/10 bg-slate-950/70 shadow-[0_18px_54px_-44px_rgba(2,6,23,0.95)] ring-1 ring-white/[0.025] transition hover:-translate-y-0.5 hover:border-cyan-300/30 hover:bg-slate-900/70 hover:shadow-[0_24px_70px_-48px_rgba(8,145,178,0.45)]">
-      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-300/35 to-transparent opacity-60" />
+    <Card className="group relative flex h-full min-h-[214px] flex-col overflow-hidden border-white/10 bg-white/[0.035] shadow-[0_18px_60px_-50px_rgba(15,23,42,0.95)] transition hover:-translate-y-0.5 hover:border-cyan-300/25 hover:bg-white/[0.055]">
       <CardHeader className="p-4 pb-3">
-        <div className="mb-3 flex items-start justify-between gap-3">
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-cyan-300/20 bg-cyan-400/[0.07] text-cyan-200 shadow-[0_14px_32px_-28px_rgba(34,211,238,0.9)]">
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-slate-950/65 text-cyan-200 transition group-hover:border-cyan-300/25">
             <Icon className="h-4 w-4" />
           </span>
           <Badge
             variant="outline"
-            className="border-white/10 bg-white/[0.035] text-[10px] font-medium text-slate-300"
+            className="border-white/10 bg-slate-950/45 text-[10px] font-medium text-slate-300"
           >
             {resource.difficulty}
           </Badge>
@@ -88,7 +87,7 @@ function ResourceCard({ resource }) {
         </CardDescription>
       </CardHeader>
       <CardContent className="mt-auto p-4 pt-0">
-        <div className="mb-3 flex flex-wrap items-center gap-1.5 border-t border-white/[0.06] pt-3">
+        <div className="mb-3 flex flex-wrap items-center gap-1.5 border-t border-white/10 pt-3">
           <Badge className="bg-cyan-400/10 px-2 py-0.5 text-[10px] font-medium text-cyan-200 hover:bg-cyan-400/15">
             {resource.category}
           </Badge>
@@ -119,29 +118,29 @@ function ResourceSection({ id, resources }) {
   const Icon = meta.icon;
 
   return (
-    <section className="rounded-2xl border border-white/10 bg-slate-950/45 p-4 shadow-[0_18px_60px_-52px_rgba(15,23,42,0.95)] ring-1 ring-white/[0.018] sm:p-5">
-      <div className="mb-4 flex flex-col gap-3 border-b border-white/[0.07] pb-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <div className="mb-2 flex items-center gap-2 text-cyan-200">
-            <span className="flex h-8 w-8 items-center justify-center rounded-xl border border-cyan-300/18 bg-cyan-400/[0.065] shadow-[0_12px_28px_-25px_rgba(34,211,238,0.85)]">
-              <Icon className="h-4 w-4" />
-            </span>
+    <section className="rounded-2xl border border-white/10 bg-slate-950/55 p-4 shadow-[0_18px_60px_-48px_rgba(15,23,42,0.95)] sm:p-5">
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="flex gap-3">
+          <span className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] text-cyan-200">
+            <Icon className="h-4 w-4" />
+          </span>
+          <div>
             <h2 className="text-xl font-semibold tracking-tight text-slate-50">
               {meta.title}
             </h2>
+            <p className="mt-1 max-w-2xl text-sm leading-6 text-slate-400">
+              {meta.description}
+            </p>
           </div>
-          <p className="max-w-2xl text-sm leading-6 text-slate-400">
-            {meta.description}
-          </p>
         </div>
         <Badge
           variant="outline"
-          className="w-fit border-white/10 bg-white/[0.025] text-[10px] font-medium uppercase tracking-[0.16em] text-slate-400"
+          className="w-fit shrink-0 border-white/10 bg-white/[0.035] text-[10px] font-medium uppercase tracking-[0.16em] text-slate-400"
         >
           {resources.length} curated picks
         </Badge>
       </div>
-      <div className="grid gap-3.5 md:grid-cols-2 xl:grid-cols-3">
+      <div className="grid gap-3.5 border-t border-white/10 pt-4 md:grid-cols-2 xl:grid-cols-3">
         {resources.map((resource) => (
           <ResourceCard key={`${id}-${resource.title}`} resource={resource} />
         ))}
@@ -152,19 +151,19 @@ function ResourceSection({ id, resources }) {
 
 function PlaylistCard({ playlist }) {
   return (
-    <Card className="group relative flex h-full min-h-[292px] flex-col overflow-hidden border-white/10 bg-slate-950/70 shadow-[0_18px_54px_-44px_rgba(2,6,23,0.95)] ring-1 ring-white/[0.025] transition hover:-translate-y-0.5 hover:border-cyan-300/30 hover:bg-slate-900/70 hover:shadow-[0_24px_70px_-48px_rgba(8,145,178,0.45)]">
-      <div className="border-b border-white/10 bg-[linear-gradient(135deg,rgba(15,23,42,0.98),rgba(2,6,23,0.88))] p-3.5">
-        <div className="relative flex aspect-[16/9] items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-slate-950/50 text-cyan-100 shadow-inner">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(34,211,238,0.18),transparent_32%),radial-gradient(circle_at_78%_72%,rgba(16,185,129,0.08),transparent_30%)]" />
-          <div className="absolute left-3 top-3 rounded-full border border-white/10 bg-slate-950/65 px-2 py-1 text-[10px] font-medium text-slate-300 backdrop-blur-sm">
+    <Card className="group relative flex h-full min-h-[274px] flex-col overflow-hidden border-white/10 bg-white/[0.035] shadow-[0_18px_60px_-50px_rgba(15,23,42,0.95)] transition hover:-translate-y-0.5 hover:border-cyan-300/25 hover:bg-white/[0.055]">
+      <div className="p-3">
+        <div className="relative flex aspect-[16/9] items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-slate-950/75 text-cyan-100 shadow-inner">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_22%_18%,rgba(34,211,238,0.16),transparent_30%),linear-gradient(135deg,rgba(15,23,42,0.96),rgba(2,6,23,0.86))]" />
+          <div className="absolute left-2.5 top-2.5 max-w-[70%] truncate rounded-full border border-white/10 bg-slate-950/70 px-2 py-1 text-[10px] font-medium text-slate-300 backdrop-blur-sm">
             {playlist.creator}
           </div>
-          <span className="relative flex h-12 w-12 items-center justify-center rounded-2xl border border-cyan-300/20 bg-cyan-400/[0.08] shadow-[0_18px_38px_-26px_rgba(34,211,238,0.8)]">
-            <Youtube className="h-7 w-7" />
+          <span className="relative flex h-11 w-11 items-center justify-center rounded-2xl border border-cyan-300/20 bg-cyan-400/[0.08] shadow-[0_18px_38px_-26px_rgba(34,211,238,0.8)]">
+            <Youtube className="h-6 w-6" />
           </span>
         </div>
       </div>
-      <CardHeader className="p-4 pb-3">
+      <CardHeader className="p-4 pb-3 pt-1">
         <div className="mb-3 flex items-start justify-between gap-3">
           <Badge className="bg-cyan-400/10 px-2 py-0.5 text-[10px] font-medium text-cyan-200 hover:bg-cyan-400/15">
             YouTube Playlist
@@ -184,8 +183,8 @@ function PlaylistCard({ playlist }) {
         </CardDescription>
       </CardHeader>
       <CardContent className="mt-auto p-4 pt-0">
-        <div className="mb-3 flex items-center justify-between gap-3 border-t border-white/[0.06] pt-3">
-          <span className="text-xs font-medium text-slate-300">
+        <div className="mb-3 flex items-center justify-between gap-3 border-t border-white/10 pt-3">
+          <span className="truncate text-xs font-medium text-slate-300">
             {playlist.creator}
           </span>
           <span className="h-1.5 w-1.5 rounded-full bg-cyan-300/80" />
@@ -207,35 +206,56 @@ function PlaylistCard({ playlist }) {
 
 function YoutubePlaylistsSection({ playlists }) {
   return (
-    <section className="rounded-2xl border border-white/10 bg-slate-950/45 p-4 shadow-[0_18px_60px_-52px_rgba(15,23,42,0.95)] ring-1 ring-white/[0.018] sm:p-5">
-      <div className="mb-4 flex flex-col gap-3 border-b border-white/[0.07] pb-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-        <div className="mb-2 flex items-center gap-2 text-cyan-200">
-          <span className="flex h-8 w-8 items-center justify-center rounded-xl border border-cyan-300/18 bg-cyan-400/[0.065] shadow-[0_12px_28px_-25px_rgba(34,211,238,0.85)]">
+    <section className="rounded-2xl border border-white/10 bg-slate-950/55 p-4 shadow-[0_18px_60px_-48px_rgba(15,23,42,0.95)] sm:p-5">
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="flex gap-3">
+          <span className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] text-cyan-200">
             <Youtube className="h-4 w-4" />
           </span>
-          <h2 className="text-xl font-semibold tracking-tight text-slate-50">
-            Curated YouTube Playlists
-          </h2>
-        </div>
-        <p className="max-w-2xl text-sm leading-6 text-slate-400">
-          Focused video learning matched to your domain, target role, and skill
-          specialization.
-        </p>
+          <div>
+            <h2 className="text-xl font-semibold tracking-tight text-slate-50">
+              Curated YouTube Playlists
+            </h2>
+            <p className="mt-1 max-w-2xl text-sm leading-6 text-slate-400">
+              Focused video learning matched to your domain, target role, and
+              skill specialization.
+            </p>
+          </div>
         </div>
         <Badge
           variant="outline"
-          className="w-fit border-white/10 bg-white/[0.025] text-[10px] font-medium uppercase tracking-[0.16em] text-slate-400"
+          className="w-fit shrink-0 border-white/10 bg-white/[0.035] text-[10px] font-medium uppercase tracking-[0.16em] text-slate-400"
         >
           {playlists.length} video paths
         </Badge>
       </div>
-      <div className="grid gap-3.5 md:grid-cols-2 xl:grid-cols-3">
+      <div className="grid gap-3.5 border-t border-white/10 pt-4 md:grid-cols-2 xl:grid-cols-3">
         {playlists.map((playlist) => (
           <PlaylistCard key={playlist.title} playlist={playlist} />
         ))}
       </div>
     </section>
+  );
+}
+
+function InsightCard({ title, value, note, icon: Icon }) {
+  return (
+    <Card className="group border-white/10 bg-slate-950/55 shadow-[0_18px_60px_-50px_rgba(15,23,42,0.95)] transition-colors hover:border-cyan-300/25 hover:bg-white/[0.045]">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle className="text-sm font-medium text-slate-400">
+          {title}
+        </CardTitle>
+        <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] text-cyan-200 transition-colors group-hover:border-cyan-300/25">
+          <Icon className="h-4 w-4" />
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="truncate text-2xl font-semibold tracking-tight text-slate-50">
+          {value}
+        </div>
+        <p className="mt-1 text-xs leading-5 text-slate-500">{note}</p>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -254,14 +274,34 @@ export default async function ResourceHubPage() {
 
   const profile = await getResourceHubProfile();
   const hub = buildResourceHub(profile);
+  const insightCards = [
+    {
+      title: "Domain Signal",
+      value: hub.domainName,
+      note: hub.subdomainName,
+      icon: Compass,
+    },
+    {
+      title: "Role Inference",
+      value: hub.targetRole,
+      note: `${hub.experienceLevel} track`,
+      icon: Target,
+    },
+    {
+      title: "Resource Quality",
+      value: "Trusted Providers",
+      note: "Recognized platforms and credentials",
+      icon: Award,
+    },
+  ];
 
   return (
-    <div className="space-y-7">
-      <section className="overflow-hidden rounded-2xl border border-white/10 bg-slate-950/65 shadow-[0_24px_80px_-44px_rgba(8,145,178,0.6)] ring-1 ring-white/[0.025]">
-        <div className="bg-[radial-gradient(circle_at_top_left,rgba(34,211,238,0.14),transparent_30%),radial-gradient(circle_at_80%_20%,rgba(16,185,129,0.06),transparent_28%),linear-gradient(180deg,rgba(255,255,255,0.04),transparent_48%)] px-5 py-6 sm:px-7 lg:px-8">
-          <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+    <div className="space-y-6">
+      <section className="overflow-hidden rounded-2xl border border-white/10 bg-slate-950/55 shadow-[0_22px_70px_-40px_rgba(8,145,178,0.55)]">
+        <div className="px-5 py-6 sm:px-7 lg:px-8">
+          <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-center">
             <div className="max-w-3xl">
-              <div className="mb-4 inline-flex items-center rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-xs font-medium text-cyan-100 shadow-[0_14px_30px_-28px_rgba(34,211,238,0.85)]">
+              <div className="mb-3 inline-flex items-center rounded-full border border-cyan-400/15 bg-cyan-400/10 px-3 py-1 text-xs font-medium text-cyan-100">
                 <Sparkles className="mr-2 h-3.5 w-3.5" />
                 AI-curated resource hub
               </div>
@@ -290,7 +330,7 @@ export default async function ResourceHubPage() {
                 </Badge>
               </div>
             </div>
-            <div className="w-full rounded-2xl border border-white/10 bg-slate-950/45 p-4 shadow-[0_18px_56px_-48px_rgba(2,6,23,0.95)] ring-1 ring-white/[0.025] lg:w-[330px]">
+            <div className="rounded-2xl border border-white/10 bg-white/[0.035] p-4 shadow-[0_18px_60px_-52px_rgba(15,23,42,0.95)]">
               <div className="mb-3 flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2 text-sm font-semibold text-slate-100">
                   <Target className="h-4 w-4 text-cyan-300" />
@@ -300,12 +340,12 @@ export default async function ResourceHubPage() {
                   Profile
                 </span>
               </div>
-              <div className="flex flex-wrap gap-2 border-t border-white/[0.07] pt-3">
+              <div className="flex flex-wrap gap-2 border-t border-white/10 pt-3">
                 {hub.skillFocus.map((skill) => (
                   <Badge
                     key={skill}
                     variant="outline"
-                    className="border-white/10 bg-slate-950/45 text-xs font-medium text-slate-300"
+                    className="border-white/10 bg-slate-950/55 text-xs font-medium text-slate-300"
                   >
                     {skill}
                   </Badge>
@@ -316,47 +356,20 @@ export default async function ResourceHubPage() {
         </div>
       </section>
 
-      <div className="grid gap-3.5 md:grid-cols-3">
-        <Card className="overflow-hidden border-white/10 bg-slate-950/60 shadow-[0_18px_54px_-46px_rgba(2,6,23,0.95)] ring-1 ring-white/[0.018]">
-          <div className="h-px bg-gradient-to-r from-cyan-300/30 via-white/10 to-transparent" />
-          <CardHeader className="p-4">
-            <CardTitle className="text-sm font-medium text-slate-300">
-              Domain signal
-            </CardTitle>
-            <CardDescription className="text-xl font-semibold text-slate-50">
-              {hub.domainName}
-            </CardDescription>
-          </CardHeader>
-        </Card>
-        <Card className="overflow-hidden border-white/10 bg-slate-950/60 shadow-[0_18px_54px_-46px_rgba(2,6,23,0.95)] ring-1 ring-white/[0.018]">
-          <div className="h-px bg-gradient-to-r from-cyan-300/30 via-white/10 to-transparent" />
-          <CardHeader className="p-4">
-            <CardTitle className="text-sm font-medium text-slate-300">
-              Role inference
-            </CardTitle>
-            <CardDescription className="text-xl font-semibold text-slate-50">
-              {hub.targetRole}
-            </CardDescription>
-          </CardHeader>
-        </Card>
-        <Card className="overflow-hidden border-white/10 bg-slate-950/60 shadow-[0_18px_54px_-46px_rgba(2,6,23,0.95)] ring-1 ring-white/[0.018]">
-          <div className="h-px bg-gradient-to-r from-cyan-300/30 via-white/10 to-transparent" />
-          <CardHeader className="p-4">
-            <CardTitle className="text-sm font-medium text-slate-300">
-              Resource quality
-            </CardTitle>
-            <CardDescription className="text-xl font-semibold text-slate-50">
-              Trusted providers
-            </CardDescription>
-          </CardHeader>
-        </Card>
+      <div className="grid gap-4 md:grid-cols-3">
+        {insightCards.map((card) => (
+          <InsightCard key={card.title} {...card} />
+        ))}
       </div>
 
       <div className="space-y-6">
         <ResourceSection id="roadmaps" resources={hub.resources.roadmaps} />
         <ResourceSection id="interview" resources={hub.resources.interview} />
         <YoutubePlaylistsSection playlists={hub.youtubePlaylists} />
-        <ResourceSection id="certifications" resources={hub.resources.certifications} />
+        <ResourceSection
+          id="certifications"
+          resources={hub.resources.certifications}
+        />
         <ResourceSection id="tools" resources={hub.resources.tools} />
       </div>
 
@@ -370,7 +383,10 @@ export default async function ResourceHubPage() {
               CareerNavigator can turn this resource set into a weekly roadmap.
             </p>
           </div>
-          <Button asChild className="bg-cyan-500 text-slate-950 hover:bg-cyan-400">
+          <Button
+            asChild
+            className="bg-cyan-500 text-slate-950 hover:bg-cyan-400"
+          >
             <Link href="/career-navigator">
               Ask CareerNavigator
               <ArrowUpRight className="h-4 w-4" />

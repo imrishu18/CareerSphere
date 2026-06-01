@@ -10,7 +10,7 @@ import {
 export const runtime = "nodejs";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_RESUME_MATCHER_API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
 const fallbackAnalysis = {

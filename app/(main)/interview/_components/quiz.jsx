@@ -83,6 +83,13 @@ export default function Quiz() {
     }
   };
 
+  const handlePrevious = () => {
+    if (currentQuestion > 0) {
+      setCurrentQuestion(currentQuestion - 1);
+      setShowExplanation(false);
+    }
+  };
+
   const calculateScore = () => {
     let correct = 0;
     answers.forEach((answer, index) => {
@@ -113,17 +120,79 @@ export default function Quiz() {
 
   if (generatingQuiz) {
     return (
-      <div className="mx-2 flex min-h-[34vh] items-center justify-center pt-8">
-        <div className="flex flex-col items-center gap-4 text-center">
-          <Loader2 className="h-8 w-8 animate-spin text-cyan-300" />
-          <p className="text-base font-semibold tracking-tight text-slate-100">
-            Generating interview questions...
-          </p>
-          <p className="max-w-sm text-sm leading-6 text-slate-500">
-            Preparing a focused mock interview for your selected difficulty.
-          </p>
-        </div>
-      </div>
+      <Card className="mx-2 border-white/10 bg-slate-950/55">
+        <CardHeader>
+          <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+            <div>
+              <CardTitle>Preparing your mock interview</CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Difficulty:{" "}
+                {
+                  difficultyOptions.find((option) => option.value === difficulty)
+                    ?.title
+                }
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-1">
+              {Array.from({ length: 10 }).map((_, index) => (
+                <span
+                  key={index}
+                  className="h-2.5 w-7 animate-pulse rounded-full bg-white/15"
+                />
+              ))}
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="rounded-2xl border border-white/10 bg-white/[0.035] p-4">
+            <div className="flex items-center gap-3">
+              <Loader2 className="h-5 w-5 animate-spin text-cyan-300" />
+              <div>
+                <p className="text-lg font-semibold leading-7 text-slate-50">
+                  Generating interview questions...
+                </p>
+                <p className="mt-1 text-sm leading-6 text-slate-500">
+                  Preparing a focused mock interview for your selected difficulty.
+                </p>
+              </div>
+            </div>
+            <div className="mt-5 space-y-2">
+              <div className="h-4 w-11/12 animate-pulse rounded-full bg-white/10" />
+              <div className="h-4 w-8/12 animate-pulse rounded-full bg-white/10" />
+            </div>
+          </div>
+
+          <div className="grid gap-3">
+            {optionLabels.map((label, index) => (
+              <div
+                key={label}
+                className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.035] p-3"
+              >
+                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-white/15 text-[10px] font-semibold text-cyan-200">
+                  {label}
+                </span>
+                <div className="h-4 flex-1 animate-pulse rounded-full bg-white/10" />
+                <div
+                  className={`hidden h-4 animate-pulse rounded-full bg-white/10 sm:block ${
+                    index % 2 === 0 ? "w-20" : "w-28"
+                  }`}
+                />
+              </div>
+            ))}
+          </div>
+        </CardContent>
+        <CardFooter className="flex justify-between">
+          <Button variant="outline" disabled>
+            Show Explanation
+          </Button>
+          <div className="ml-auto flex gap-2">
+            <Button variant="outline" disabled>
+              Previous
+            </Button>
+            <Button disabled>Next Question</Button>
+          </div>
+        </CardFooter>
+      </Card>
     );
   }
 
@@ -241,7 +310,7 @@ export default function Quiz() {
           </div>
         )}
       </CardContent>
-      <CardFooter className="flex justify-between">
+      <CardFooter className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         {!showExplanation && (
           <Button
             onClick={() => setShowExplanation(true)}
@@ -251,15 +320,26 @@ export default function Quiz() {
             Show Explanation
           </Button>
         )}
-        <Button
-          onClick={handleNext}
-          disabled={!answers[currentQuestion] || savingResult}
-          className="ml-auto"
-        >
-          {currentQuestion < quizData.length - 1
-            ? "Next Question"
-            : "Finish Quiz"}
-        </Button>
+        {showExplanation && <span />}
+        <div className="flex w-full gap-2 sm:ml-auto sm:w-auto">
+          <Button
+            onClick={handlePrevious}
+            variant="outline"
+            disabled={currentQuestion === 0 || savingResult}
+            className="flex-1 sm:flex-none"
+          >
+            Previous
+          </Button>
+          <Button
+            onClick={handleNext}
+            disabled={!answers[currentQuestion] || savingResult}
+            className="flex-1 sm:flex-none"
+          >
+            {currentQuestion < quizData.length - 1
+              ? "Next Question"
+              : "Finish Quiz"}
+          </Button>
+        </div>
       </CardFooter>
     </Card>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import {
   Bar,
@@ -15,6 +15,7 @@ import {
 } from "recharts";
 import {
   ArrowRight,
+  BookOpen,
   Bot,
   BriefcaseIcon,
   FileCheck2,
@@ -74,7 +75,30 @@ const careerTools = [
     icon: PenLine,
     color: "text-rose-300",
   },
+  {
+    href: "/resource-hub",
+    title: "Resource Hub",
+    description:
+      "Access AI-curated learning roadmaps, certifications, interview resources, and career growth materials tailored to your domain.",
+    icon: BookOpen,
+    color: "text-cyan-300",
+  },
 ];
+
+function useRelativeTimeAfterMount(value) {
+  const [relativeTime, setRelativeTime] = useState("soon");
+
+  useEffect(() => {
+    if (!value) return;
+    setRelativeTime(
+      formatDistanceToNow(new Date(value), {
+        addSuffix: true,
+      })
+    );
+  }, [value]);
+
+  return relativeTime;
+}
 
 const DashboardView = ({ insights, metrics }) => {
   const salaryData = insights.salaryRanges.map((range) => ({
@@ -114,9 +138,7 @@ const DashboardView = ({ insights, metrics }) => {
   const OutlookIcon = getMarketOutlookInfo(insights.marketOutlook).icon;
   const outlookColor = getMarketOutlookInfo(insights.marketOutlook).color;
   const lastUpdatedDate = format(new Date(insights.lastUpdated), "dd MMM yyyy");
-  const nextUpdateDistance = formatDistanceToNow(new Date(insights.nextUpdate), {
-    addSuffix: true,
-  });
+  const nextUpdateDistance = useRelativeTimeAfterMount(insights.nextUpdate);
   const interviewTrendData = (metrics?.interviewTrend || []).map((item) => ({
     date: format(new Date(item.date), "MMM dd"),
     score: Math.round(item.score),
@@ -148,18 +170,24 @@ const DashboardView = ({ insights, metrics }) => {
         </div>
       </section>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6">
         {careerTools.map((tool) => {
           const Icon = tool.icon;
           return (
-            <Link href={tool.href} key={tool.title}>
-              <Card className="h-full border-white/10 bg-slate-950/55 shadow-[0_18px_60px_-48px_rgba(15,23,42,0.95)] transition hover:-translate-y-1 hover:border-cyan-300/30 hover:bg-white/[0.07]">
-                <CardHeader>
-                  <div className={`mb-3 flex h-11 w-11 items-center justify-center rounded-2xl bg-white/5 ${tool.color}`}>
+            <Link className="h-full" href={tool.href} key={tool.title}>
+              <Card className="flex h-full min-h-[188px] flex-col border-white/10 bg-slate-950/55 shadow-[0_18px_60px_-48px_rgba(15,23,42,0.95)] transition hover:-translate-y-1 hover:border-cyan-300/30 hover:bg-white/[0.07]">
+                <CardHeader className="flex h-full flex-col p-5">
+                  <div
+                    className={`mb-4 flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/5 ${tool.color}`}
+                  >
                     <Icon className="h-5 w-5" />
                   </div>
-                  <CardTitle className="text-base">{tool.title}</CardTitle>
-                  <CardDescription>{tool.description}</CardDescription>
+                  <CardTitle className="min-h-[3.75rem] text-base leading-5">
+                    {tool.title}
+                  </CardTitle>
+                  <CardDescription className="mt-2 line-clamp-3 text-sm leading-5">
+                    {tool.description}
+                  </CardDescription>
                 </CardHeader>
               </Card>
             </Link>
@@ -168,49 +196,78 @@ const DashboardView = ({ insights, metrics }) => {
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="flex h-full flex-col border-white/10 bg-slate-950/55 shadow-[0_18px_60px_-48px_rgba(15,23,42,0.95)] transition hover:border-cyan-300/25">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 p-4 pb-2">
-            <CardTitle className="text-sm font-medium text-slate-300">Market Outlook</CardTitle>
-            <OutlookIcon className={`h-4 w-4 ${outlookColor}`} />
+        <Card className="group flex h-full min-h-[118px] flex-col overflow-hidden border-white/10 bg-slate-950/60 shadow-[0_14px_48px_-46px_rgba(15,23,42,0.95)] ring-1 ring-white/[0.018] transition hover:border-cyan-300/20 hover:bg-white/[0.035]">
+          <CardHeader className="flex flex-row items-start justify-between space-y-0 p-4 pb-2">
+            <CardTitle className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">
+              Market Outlook
+            </CardTitle>
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.03] transition group-hover:border-cyan-300/20">
+              <OutlookIcon className={`h-3.5 w-3.5 ${outlookColor}`} />
+            </div>
           </CardHeader>
-          <CardContent className="flex-1 p-4 pt-0">
-            <div className="text-xl font-bold tracking-tight">{insights.marketOutlook}</div>
-            <p className="mt-1 text-[11px] text-muted-foreground">Next update {nextUpdateDistance}</p>
+          <CardContent className="flex flex-1 flex-col justify-end p-4 pt-0">
+            <div className="w-fit rounded-full border border-white/[0.08] bg-white/[0.025] px-2.5 py-1 text-[22px] font-semibold leading-none tracking-tight text-slate-50">
+              {insights.marketOutlook}
+            </div>
+            <p className="mt-3 text-xs leading-5 text-slate-500">
+              Next update {nextUpdateDistance}
+            </p>
           </CardContent>
         </Card>
 
-        <Card className="flex h-full flex-col border-white/10 bg-slate-950/55 shadow-[0_18px_60px_-48px_rgba(15,23,42,0.95)] transition hover:border-cyan-300/25">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 p-4 pb-2">
-            <CardTitle className="text-sm font-medium text-slate-300">Industry Growth</CardTitle>
-            <TrendingUp className="h-4 w-4 text-emerald-300" />
+        <Card className="group flex h-full min-h-[118px] flex-col overflow-hidden border-white/10 bg-slate-950/60 shadow-[0_14px_48px_-46px_rgba(15,23,42,0.95)] ring-1 ring-white/[0.018] transition hover:border-cyan-300/20 hover:bg-white/[0.035]">
+          <CardHeader className="flex flex-row items-start justify-between space-y-0 p-4 pb-2">
+            <CardTitle className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">
+              Industry Growth
+            </CardTitle>
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.03] text-emerald-300 transition group-hover:border-cyan-300/20">
+              <TrendingUp className="h-3.5 w-3.5" />
+            </div>
           </CardHeader>
-          <CardContent className="flex-1 p-4 pt-0">
-            <div className="text-xl font-bold tracking-tight">{insights.growthRate.toFixed(1)}%</div>
-            <Progress value={insights.growthRate} className="mt-2 h-1.5" />
+          <CardContent className="flex flex-1 flex-col justify-end p-4 pt-0">
+            <div className="text-[28px] font-semibold leading-none tracking-tight text-slate-50">
+              {insights.growthRate.toFixed(1)}%
+            </div>
+            <Progress value={insights.growthRate} className="mt-4 h-1.5 rounded-full opacity-85" />
           </CardContent>
         </Card>
 
-        <Card className="flex h-full flex-col border-white/10 bg-slate-950/55 shadow-[0_18px_60px_-48px_rgba(15,23,42,0.95)] transition hover:border-cyan-300/25">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 p-4 pb-2">
-            <CardTitle className="text-sm font-medium text-slate-300">Demand Level</CardTitle>
-            <BriefcaseIcon className="h-4 w-4 text-cyan-300" />
+        <Card className="group flex h-full min-h-[118px] flex-col overflow-hidden border-white/10 bg-slate-950/60 shadow-[0_14px_48px_-46px_rgba(15,23,42,0.95)] ring-1 ring-white/[0.018] transition hover:border-cyan-300/20 hover:bg-white/[0.035]">
+          <CardHeader className="flex flex-row items-start justify-between space-y-0 p-4 pb-2">
+            <CardTitle className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">
+              Demand Level
+            </CardTitle>
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.03] text-cyan-300 transition group-hover:border-cyan-300/20">
+              <BriefcaseIcon className="h-3.5 w-3.5" />
+            </div>
           </CardHeader>
-          <CardContent className="flex-1 p-4 pt-0">
-            <div className="text-xl font-bold tracking-tight">{insights.demandLevel}</div>
-            <div className="mt-2 h-1.5 w-full rounded-full bg-white/10">
-              <div className={`h-1.5 rounded-full ${getDemandLevelColor(insights.demandLevel)}`} style={{ width: "72%" }} />
+          <CardContent className="flex flex-1 flex-col justify-end p-4 pt-0">
+            <div className="w-fit rounded-full border border-cyan-300/15 bg-cyan-400/[0.07] px-2.5 py-1 text-[22px] font-semibold leading-none tracking-tight text-cyan-50">
+              {insights.demandLevel}
+            </div>
+            <div className="mt-4 h-1.5 w-full overflow-hidden rounded-full bg-white/[0.08]">
+              <div
+                className={`h-1.5 rounded-full opacity-85 ${getDemandLevelColor(insights.demandLevel)}`}
+                style={{ width: "72%" }}
+              />
             </div>
           </CardContent>
         </Card>
 
-        <Card className="flex h-full flex-col border-white/10 bg-slate-950/55 shadow-[0_18px_60px_-48px_rgba(15,23,42,0.95)] transition hover:border-cyan-300/25">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 p-4 pb-2">
-            <CardTitle className="text-sm font-medium text-slate-300">Last Updated</CardTitle>
-            <Sparkles className="h-4 w-4 text-violet-300" />
+        <Card className="group flex h-full min-h-[118px] flex-col overflow-hidden border-white/10 bg-slate-950/60 shadow-[0_14px_48px_-46px_rgba(15,23,42,0.95)] ring-1 ring-white/[0.018] transition hover:border-cyan-300/20 hover:bg-white/[0.035]">
+          <CardHeader className="flex flex-row items-start justify-between space-y-0 p-4 pb-2">
+            <CardTitle className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">
+              Last Updated
+            </CardTitle>
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.03] text-violet-300 transition group-hover:border-cyan-300/20">
+              <Sparkles className="h-3.5 w-3.5" />
+            </div>
           </CardHeader>
-          <CardContent className="flex-1 p-4 pt-0">
-            <div className="text-base font-medium text-muted-foreground">{lastUpdatedDate}</div>
-            <p className="mt-1 text-[11px] text-muted-foreground/60">
+          <CardContent className="flex flex-1 flex-col justify-end p-4 pt-0">
+            <div className="text-[24px] font-semibold leading-none tracking-tight text-slate-50">
+              {lastUpdatedDate}
+            </div>
+            <p className="mt-3 text-xs leading-5 text-slate-500">
               Refresh scheduled {nextUpdateDistance}
             </p>
           </CardContent>
@@ -223,13 +280,17 @@ const DashboardView = ({ insights, metrics }) => {
           ["Resume Readiness", metrics?.resumeReadiness || 0],
           ["Interview Average", metrics?.averageInterviewScore || 0],
         ].map(([label, value]) => (
-          <Card key={label} className="flex h-full flex-col border-white/10 bg-slate-950/55 shadow-[0_18px_60px_-48px_rgba(15,23,42,0.95)] transition hover:border-cyan-300/25">
+          <Card key={label} className="flex h-full min-h-[116px] flex-col overflow-hidden border-white/10 bg-slate-950/60 shadow-[0_14px_48px_-46px_rgba(15,23,42,0.95)] ring-1 ring-white/[0.018] transition hover:border-cyan-300/20 hover:bg-white/[0.035]">
             <CardHeader className="p-4 pb-2">
-              <CardTitle className="text-sm font-medium text-slate-300">{label}</CardTitle>
+              <CardTitle className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">
+                {label}
+              </CardTitle>
             </CardHeader>
-            <CardContent className="flex-1 p-4 pt-0">
-              <div className="mb-2 text-xl font-bold tracking-tight">{value}%</div>
-              <Progress value={value} className="h-1.5" />
+            <CardContent className="flex flex-1 flex-col justify-end p-4 pt-0">
+              <div className="mb-4 w-fit rounded-full border border-white/[0.08] bg-white/[0.025] px-2.5 py-1 text-[24px] font-semibold leading-none tracking-tight text-slate-50">
+                {value}%
+              </div>
+              <Progress value={value} className="h-1.5 rounded-full opacity-85" />
             </CardContent>
           </Card>
         ))}

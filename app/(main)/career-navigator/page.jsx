@@ -386,6 +386,8 @@ export default function CareerNavigatorPage() {
                         {editingId === message.id ? (
                           <div className="flex w-[260px] flex-col gap-3 sm:w-[400px]">
                             <Textarea
+                              id={`career-message-edit-${message.id}`}
+                              name="careerMessageEdit"
                               value={editingText}
                               onChange={(e) => setEditingText(e.target.value)}
                               className="min-h-[80px] border-cyan-500/40 bg-slate-950/80 text-sm"
@@ -481,6 +483,8 @@ export default function CareerNavigatorPage() {
             )}
             <div className="relative flex items-end overflow-hidden rounded-[22px] border border-white/10 bg-slate-950/55 shadow-[0_18px_60px_-48px_rgba(15,23,42,0.95)] ring-1 ring-white/[0.025] transition-all focus-within:border-cyan-300/24 focus-within:bg-slate-950/65 focus-within:ring-2 focus-within:ring-cyan-400/[0.07]">
               <Textarea
+                id="career-question"
+                name="careerQuestion"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => {
